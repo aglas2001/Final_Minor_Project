@@ -16,6 +16,7 @@ mnist = fetch_openml('mnist_784')
 # These are the images
 mnist.data.shape
 
+      
 # These are the labels
 mnist.target.shape
 
