@@ -1,13 +1,15 @@
 import torch
-import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as ET
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
+#Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
     def __init__(self, data_file):
 
+        #Parses the XML file to retrieve the data
+        #Final data saved in the data matrix with cols[x, y, z]
         temp_data = list();
 
         tree = ET.parse(data_file)
@@ -42,6 +44,7 @@ class DisplacementDataset(Dataset):
 
         return displacement_x, displacement_y, displacement_z
 
+#An example data loader using the custom dataset class
 training_data = DisplacementDataset("../test_data/para_1.vtu")
 train_dataloader = DataLoader(training_data, batch_size=64, shuffle=False)
 
