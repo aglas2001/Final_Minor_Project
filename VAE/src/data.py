@@ -50,4 +50,4 @@ train_dataloader = DataLoader(training_data, batch_size=64, shuffle=False)
 
 train_displacements_x, train_displacements_y, train_displacements_z = next(iter(train_dataloader))
 print(f"Displacements batch shape: {train_displacements_x.size()}")
-print(f"Label: {train_displacements_x}")
+print(f"Label: {train_displacements_y}")
