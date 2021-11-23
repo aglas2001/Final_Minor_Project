@@ -42,7 +42,7 @@ ax.set_xlabel('Principal Component 1', fontsize = 15)
 ax.set_ylabel('Principal Component 2', fontsize = 15)
 ax.set_title('2 component PCA', fontsize = 20)
 
-#colour data to know its true 'value'
+#color data to know its true 'value'
 targets = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
 colors = ['r', 'g', 'b']
 for target, color in zip(targets,colors):
