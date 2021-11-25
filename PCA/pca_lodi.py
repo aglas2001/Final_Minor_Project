@@ -12,7 +12,8 @@ from torch.utils.data import Dataset
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-#Custom Dataset loader for our displacment data
+
+#Custom Dataset loader for our displacement data
 class DisplacementDataset(Dataset):
     def __init__(self, data_file):
 
