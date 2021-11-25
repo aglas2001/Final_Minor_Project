@@ -1,0 +1,515 @@
+Log file created on Thu Nov 25 11:00:52 CET 2021.
+
+userinput.mesh init 
+Reading input with userinput.mesh from file rve.msh
+ ...Adding 1636 nodes.
+ ...Adding 3138 elements.
+ ... stored ElementGroup gmsh0 with 1524 elements.
+ ... stored ElementGroup gmsh1 with 1614 elements.
+
+ ...Created NodeGroup `corner0' with 1 nodes.
+ namely [ 82 ]
+ ...Created NodeGroup `cornerx' with 1 nodes.
+ namely [ 83 ]
+ ...Created NodeGroup `xmin' with 35 nodes.
+ namely [ 4, 5, 6, 33, 34, 35, 48, 49, 50, 81, 82, 108, 109, 110, 111, 237, 238, 313, 314, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492 ]
+ ...Created NodeGroup `xmax' with 35 nodes.
+ namely [ 8, 9, 10, 29, 30, 31, 54, 55, 56, 83, 84, 126, 127, 128, 129, 217, 218, 333, 334, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527 ]
+ ...Created NodeGroup `cornery' with 1 nodes.
+ namely [ 81 ]
+ ...Created NodeGroup `ymin' with 33 nodes.
+ namely [ 15, 16, 17, 22, 23, 24, 82, 83, 156, 157, 158, 159, 187, 188, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+ ...Created NodeGroup `ymax' with 33 nodes.
+ namely [ 11, 12, 13, 18, 19, 20, 81, 84, 138, 139, 140, 141, 169, 170, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546 ]
+  ...Sorted NodeGroup `xmax' wrt `xmin'
+  ...Sorted NodeGroup `ymax' wrt `ymin'
+Reading data from `hmelro3.data' ...
+
+  hmelro3.data, line 2: reading tag `Function' ...
+  hmelro3.data, line 52: done reading tag `Function'
+  hmelro3.data, line 54: reading tag `Function' ...
+  hmelro3.data, line 65: done reading tag `Function'
+
+Created a new model named `model'.
+
+Making NodeGroups from PeriodicBCModel
+ ...Created NodeGroup `corner0' with 1 nodes.
+ namely [ 82 ]
+ ...Created NodeGroup `cornerx' with 1 nodes.
+ namely [ 83 ]
+ ...Created NodeGroup `xmin' with 35 nodes.
+ namely [ 4, 5, 6, 33, 34, 35, 48, 49, 50, 81, 82, 108, 109, 110, 111, 237, 238, 313, 314, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492 ]
+ ...Created NodeGroup `xmax' with 35 nodes.
+ namely [ 8, 9, 10, 29, 30, 31, 54, 55, 56, 83, 84, 126, 127, 128, 129, 217, 218, 333, 334, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527 ]
+ ...Created NodeGroup `cornery' with 1 nodes.
+ namely [ 81 ]
+ ...Created NodeGroup `ymin' with 33 nodes.
+ namely [ 15, 16, 17, 22, 23, 24, 82, 83, 156, 157, 158, 159, 187, 188, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+ ...Created NodeGroup `ymax' with 33 nodes.
+ namely [ 11, 12, 13, 18, 19, 20, 81, 84, 138, 139, 140, 141, 169, 170, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546 ]
+  ...Sorted NodeGroup `xmax' wrt `xmin'
+  ...Sorted NodeGroup `ymax' wrt `ymin'
+Data summary:
+
+  nodes ......................................... 1636
+  node dofs ..................................... 3272
+  node groups ................................... 9
+  node tables ................................... 0
+  node data bases ............................... 0
+  elements ...................................... 3138
+  element groups ................................ 5
+  element tables ................................ 0
+  element data bases ............................ 0
+  boundaries .................................... 0
+  boundary groups ............................... 2
+  boundary tables ............................... 0
+  boundary data bases ........................... 0
+  functions ..................................... 2
+
+Application configuration data:
+
+  log	=
+  {
+    file	= "-rve.log";
+    rank	= 0;
+    pattern	= "*.info";
+    logPrefix	= "";
+    outPrefix	= "";
+    warnPrefix	= "*** WARNING: ";
+    errPrefix	= "*** ERROR: ";
+  };
+  control	=
+  {
+    prompt	= ">";
+    cmdFile	= "-";
+    fgMode	= false;
+    pause	= -1.00000;
+    runWhile	= "i<10";
+  };
+  usermodules	=
+  {
+    stepper	=
+    {
+      type	= "AdaptiveStep";
+      writeStats	= false;
+      reduction	= 0.800000;
+      startIncr	= 5.00000e-05;
+      maxIncr	= 5.00000e-05;
+      minIncr	= 5.00000e-05;
+      optIter	= 5;
+      dmMaxIter	= 0;
+      maxIter	= 0;
+      solver	=
+      {
+        maxIter	= 20;
+        tiny	= 1.00000e-300;
+        precision	= 0.000100000;
+        maxIncr	= 10.0000;
+        lineSearch	= false;
+        deltaCons	= false;
+        bounds	= [];
+        updateWhen	= none;
+        solver	=
+        {
+          type	= "SkylineLU";
+          lenient	= true;
+          precision	= 5.00000e-05;
+          zeroThreshold	= 1.49012e-08;
+          maxZeroPivots	= 0;
+          reorder	= true;
+          useThreads	= false;
+          printPivots	= false;
+        };
+      };
+    };
+    sample	=
+    {
+      file	= "lodi.dat";
+      header	= "";
+      separator	= " ";
+      append	= false;
+      precision	= 8;
+      dataSets	= [ "i", "model.model.lodiright.disp[0] - model.model.lodileft.disp[0]", "model.model.lodiright.load[0]",
+      "model.model.loditop.disp[1] - model.model.lodibot.disp[1]", "model.model.loditop.load[1]", "model.model.loditop.disp[0] - model.model.lodibot.disp[0]",
+      "model.model.loditop.load[0]" ];
+      sampleWhen	= "accepted";
+    };
+    paraview	=
+    {
+      output_format	= "para_%d";
+      output_file	= "vtu";
+      reportIntervall	= 1;
+      groups	= [ "all" ];
+      all	=
+      {
+        shape	= "Triangle3";
+        disps	= [ "dx", "dy" ];
+        el_data	= [];
+        node_data	= [];
+      };
+    };
+  };
+  userinput	=
+  {
+    mesh	=
+    {
+      dim	= 2;
+      file	= "rve.msh";
+      doElemGroups	= true;
+      lowOrderCopy	= false;
+      nodeGroups	= [];
+      elemGroups	= [];
+    };
+    pbc	=
+    {
+      nodeGroups	= [ "corner0", "cornerx", "xmin", "xmax", "cornery", "ymin", "ymax" ];
+      elemGroups	= [];
+      corner0	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+        ytype	= "min";
+      };
+      cornerx	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "max";
+        ytype	= "min";
+      };
+      xmin	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+      };
+      xmax	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "max";
+      };
+      cornery	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+        ytype	= "max";
+      };
+      ymin	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        ytype	= "min";
+      };
+      ymax	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        ytype	= "max";
+      };
+    };
+    hardening	=
+    {
+      storageMode	= "Default";
+      file	= "hmelro3.data";
+      maxParts	= 0;
+      tableFilter	= "*";
+      dbaseFilter	= "*";
+      funcFilter	= "*";
+    };
+  };
+  storageMode	= "Default";
+  shape	=
+  {
+    shapeTable	=
+    {
+      type	= "Auto";
+      boundaryElems	= "";
+      interfaceElems	= "";
+      maxPrecision	= 0;
+    };
+  };
+  model	=
+  {
+    type	= "Matrix";
+    model	=
+    {
+      type	= "Multi";
+      models	= [ "matrix", "fibers", "fixed", "bc", "pbc", "lodileft", "lodiright", "lodibot", "loditop"
+      ];
+      matrix	=
+      {
+        type	= "Stress";
+        elements	= "gmsh1";
+        shape	=
+        {
+          type	= "Triangle3";
+          shapeFuncs	=
+          {
+            type	= "Linear";
+          };
+          intScheme	= [ "Gauss1", "Gauss2", "Gauss2", "Gauss2" ];
+        };
+        material	=
+        {
+          type	= "Isotropic";
+          rank	= 2;
+          E	= 3760.00;
+          nu	= 0.300000;
+          anmodel	= "PLANE_STRAIN";
+          alpha	= 0.00000;
+          swelling_coeff	= 0.00000;
+        };
+        thickness	= 1.00000;
+        writeState	= false;
+      };
+      fibers	=
+      {
+        type	= "Stress";
+        elements	= "gmsh0";
+        shape	=
+        {
+          type	= "Triangle3";
+          shapeFuncs	=
+          {
+            type	= "Linear";
+          };
+          intScheme	= [ "Gauss1", "Gauss2", "Gauss2", "Gauss2" ];
+        };
+        material	=
+        {
+          type	= "Isotropic";
+          rank	= 2;
+          E	= 74000.0;
+          nu	= 0.200000;
+          anmodel	= "PLANE_STRAIN";
+          alpha	= 0.00000;
+          swelling_coeff	= 0.00000;
+        };
+        thickness	= 1.00000;
+        writeState	= false;
+      };
+      fixed	=
+      {
+        type	= "BC";
+        mode	= "disp";
+        nodeGroups	= [ "cornerx" ];
+        dofs	= [ "dy" ];
+        unitVec	= [ 0.00000 ];
+        step	= 5.00000e-05;
+        maxNorm	= 1.79769e+308;
+        shape	= "t";
+      };
+      bc	=
+      {
+        type	= "BC";
+        mode	= "disp";
+        nodeGroups	= [ "cornerx", "cornery", "cornery" ];
+        dofs	= [ "dx", "dy", "dx" ];
+        unitVec	= [ 1.00000, 1.00000, 1.00000 ];
+        step	= 5.00000e-05;
+        maxNorm	= 1.79769e+308;
+        shape	= "t";
+      };
+      pbc	=
+      {
+        type	= "PeriodicBC";
+        duplicatedNodes	= "";
+        strainRate	= [];
+        strainPath	= false;
+      };
+      lodileft	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94516157238848;
+      };
+      lodiright	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94516157238928;
+      };
+      lodibot	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94516157239008;
+      };
+      loditop	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94516157239088;
+      };
+    };
+    debug	= 0;
+    linear	= false;
+    matrix0	=
+    {
+      type	= "Sparse";
+      symmetric	= false;
+      optimize	= "Runtime";
+    };
+  };
+  init	=
+  {
+    reorder	= false;
+    vectors	= [];
+  };
+
+*** WARNING: Unknown properties:
+
+*** WARNING:   timeStep
+*** WARNING:   usermodules.view
+*** WARNING:   usermodules.view.dataSets
+*** WARNING:   usermodules.view.hist
+*** WARNING:   usermodules.view.hist.table
+*** WARNING:   usermodules.view.hist.type
+*** WARNING:   usermodules.view.mesh
+*** WARNING:   usermodules.view.mesh.colors
+*** WARNING:   usermodules.view.mesh.colors.data
+*** WARNING:   usermodules.view.mesh.colors.type
+*** WARNING:   usermodules.view.mesh.plugins
+*** WARNING:   usermodules.view.type
+*** WARNING:   usermodules.view.updateWhen
+
+*** WARNING: Initialization phase completed with warnings.
+
+  Elapsed CPU  time : 3.060 seconds.
+  Elapsed real time : 17.11 seconds.
+
+Iteration       : 0
+Elapsed runtime : 17.11 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 4.0081e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.4190e-13
+The Newton-Raphson solver converged in 1 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 1
+Simulation time : 5.000e-05
+Elapsed runtime : 17.23 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 8.0161e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.3645e-13
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 2
+Simulation time : 0.0001000
+Elapsed runtime : 17.32 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.2024e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.0141e-13
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 3
+Simulation time : 0.0001500
+Elapsed runtime : 17.42 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.6032e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 9.1946e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 4
+Simulation time : 0.0002000
+Elapsed runtime : 17.53 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 2.0040e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 8.4116e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 5
+Simulation time : 0.0002500
+Elapsed runtime : 17.63 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 2.4048e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 8.1376e-14
+The Newton-Raphson solver converged in 1 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 6
+Simulation time : 0.0003000
+Elapsed runtime : 17.73 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 2.8057e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 7.7885e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 7
+Simulation time : 0.0003500
+Elapsed runtime : 17.83 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 3.2065e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 7.9150e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 8
+Simulation time : 0.0004000
+Elapsed runtime : 17.92 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 3.6073e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 7.1498e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 9
+Simulation time : 0.0004500
+Elapsed runtime : 18.02 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 4.0081e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 7.1538e-14
+The Newton-Raphson solver converged in 1 iterations
+
+Runtime phase completed successfully.
+
+  Elapsed CPU  time : 3.960 seconds.
+  Elapsed real time : 18.12 seconds.
+
+AdaptiveStepModule statistics ...
+... total # of runs: 10
+... # of commits:    10
+... # of continues:  0
+-------  ( of which     0 were canceled.)
+... # of cancels:    0
+...
+... total # of iterations: 10
+-------  ( of which 0 after continue.)
+Shutdown phase completed successfully.
+
+  Elapsed CPU  time : 3.960 seconds.
+  Elapsed real time : 18.12 seconds.
+
+*** WARNING: One or more warnings have been printed.
+
