@@ -70,7 +70,7 @@ for i in range(0,50):
 
 #%% Plot load-displacement curve:
 
-test = displacements_x[:,400:440]
+test = displacements_x[:,8]
     
 plt.plot(test)
     
