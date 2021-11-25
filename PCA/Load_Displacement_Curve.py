@@ -61,7 +61,7 @@ for i in range(0,10):
 
 
 #%%load-displacement curve:
-test = displacements_y[:,1:10]
+test = displacements_y[:,16]
     
 plt.plot(test)
     
