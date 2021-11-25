@@ -8,8 +8,6 @@ Created on Tue Nov 23 22:17:46 2021
 from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from matplotlib import pyplot as plt
 import numpy as np
 
