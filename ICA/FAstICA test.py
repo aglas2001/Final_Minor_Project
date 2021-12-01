@@ -10,10 +10,16 @@ from sklearn.decomposition import FastICA
 #import csv
 
 X, y = load_digits(return_X_y=True)
+a,b = X.shape
 
-
-transformer = FastICA(n_components=7,random_state=0, max_iter = 200, tol =2e-2)
+transformer = FastICA(n_components=25,random_state=0, max_iter = 200, tol =2e-5)
 X_transformed = transformer.fit_transform(X)
+print(a,b)
+c,d = X_transformed.shape
+print(c,d)
+
+
+
 
 
 
@@ -29,7 +35,7 @@ X_transformed = transformer.fit_transform(X)
 
 #f = open('C:/Users/aglas/OneDrive/Bureaublad/Documenten/GitHub/Final_Minor_Project/ICA/csv_test2.csv','w')
 #writer =csv.writer(f)
-#c,d = X_transformed.shape
+
 #for i in range(c):
 #    writer.writerow(X_transformed[i])
 #f.close()
