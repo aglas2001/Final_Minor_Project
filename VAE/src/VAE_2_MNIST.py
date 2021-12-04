@@ -19,66 +19,33 @@ from torchvision import datasets
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
-
-# In[5]:
-
+#Import custom dataloader & kfold tool
+import data
+from sklearn.model_selection import KFold
 
 #Select GPU if available 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# image transformations
-transform = transforms.Compose([transforms.ToTensor(),])
-
-
-# In[6]:
-
-
 batch_size = 64
 
-#Loading DATA
-training_data = datasets.MNIST(
-    root="data",
-    train=True,
-    download=True,
-    transform=transform,
-)
-
-# Download test data from open datasets.
-validation_data = datasets.MNIST(
-    root="data",
-    train=False,
-    download=True,
-    transform=transform,
-)
-
 # Create data loaders.
-train_loader = DataLoader(training_data, batch_size= batch_size, shuffle=True)
-val_loader = DataLoader(validation_data, batch_size= batch_size, shuffle=False)
-
-checking_data, n_o_i = next(iter(train_loader))
-print(f"Feature batch shape: {checking_data.size()}")
+training_data = data.DisplacementDataset("../test_data/para_1.vtu")
+validation_data = data.DisplacementDataset("../test_data/para_1.vtu")
+dataset = torch.utils.data.ConcatDataset([training_data, validation_data])
 
 
-# In[ ]:
-
-
-
-
-
-# In[7]:
-
-
+#Changed input & output to 1034 nodes (size of dataset)
 class LinearVAE(nn.Module):
     def __init__(self):
         super(LinearVAE, self).__init__()
  
         # encoder
-        self.enc1 = nn.Linear(in_features=784, out_features=512)
+        self.enc1 = nn.Linear(in_features=1034, out_features=512)
         self.enc2 = nn.Linear(in_features=512, out_features=latent_dimensions*2)
  
         # decoder 
         self.dec1 = nn.Linear(in_features=latent_dimensions, out_features=512)
-        self.dec2 = nn.Linear(in_features=512, out_features=784)
+        self.dec2 = nn.Linear(in_features=512, out_features=1034)
         
     def reparameterize(self, mu, log_var):
         std = torch.exp(0.5*log_var) # standard deviation
@@ -105,17 +72,11 @@ class LinearVAE(nn.Module):
         return reconstruction, mu, log_var
 
 
-# In[8]:
-
-
 #Final loss function 
 def final_loss(bce_loss, mu, logvar):
     BCE = bce_loss 
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return BCE + KLD
-
-
-# In[9]:
 
 
 def train(model, dataloader, epochs):
@@ -149,6 +110,7 @@ def train(model, dataloader, epochs):
         
     return train_loss
 
+
 def validate(model, dataloader, epochs):
     model.eval()
     running_loss = 0.0
@@ -175,34 +137,77 @@ def validate(model, dataloader, epochs):
     
     return val_loss_1
 
-
-# In[10]:
-
+def reset_weights(m):
+  '''
+    Try resetting model weights to avoid
+    weight leakage.
+  '''
+  for layer in m.children():
+   if hasattr(layer, 'reset_parameters'):
+    print(f'Reset trainable parameters of layer = {layer}')
+    layer.reset_parameters()
 
 # define a simple linear VAE
 latent_dimensions = 16
 
 #learning parameters for VAE
+folds = 4
 epochs = 10
 batch_size = 64
 learning_rate = 0.0001
 
-#Initialization model 
-model = LinearVAE().to(device)
+#Initialize the KFold
+kfold = KFold(n_splits=folds, shuffle=True)
 
-#Define optimizer and part of loss function
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-criterion = nn.BCELoss(reduction='sum')
+# Start print
+print('--------------------------------')
 
-train_loss = train(model, train_loader, epochs)
+# K-fold Cross Validation model evaluation
+for fold, (train_ids, test_ids) in enumerate(kfold.split(dataset)):
+    
+    # Print
+    print(f'FOLD {fold}')
+    print('--------------------------------')
+    
+    # Sample elements randomly from a given list of ids, no replacement.
+    train_subsampler = torch.utils.data.SubsetRandomSampler(train_ids)
+    test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
+    
+    # Define data loaders for training and testing data in this fold
+    train_loader = DataLoader(
+                      dataset, 
+                      batch_size=10, sampler=train_subsampler)
+    test_loader = DataLoader(
+                      dataset,
+                      batch_size=10, sampler=test_subsampler)
+    
+    # Init the neural network
+    model = LinearVAE().to(device)
+    model.apply(reset_weights)
+    
+    # Initialize optimizer
+    optimizer = torch.optim.Adam(model.parameters(), learning_rate)
 
+    criterion = nn.BCELoss(reduction='sum')
 
-#val_loss.append(val_epoch_loss)
-#print("Validation Loss = %.3f" % (val_epoch_loss))
+    train_loss = train(model, train_loader, epochs)
+            
+    # Process is complete.
+    print('Training process has finished. Saving trained model.')
 
+    # Print about testing
+    print('Starting testing')
+    
+    # Saving the model
+    save_path = f'./model-fold-{fold}.pth'
+    torch.save(model.state_dict(), save_path)
 
-# In[11]:
+    # Evaluation for this fold
+    val_loss.append(val_epoch_loss)
+    print("Validation Loss = %.3f" % (val_epoch_loss))
 
-
-val_epoch_loss = validate(model, val_loader, epochs)
-
+    val_epoch_loss = validate(model, val_loader, epochs)
+    
+# Print fold results
+print(f'K-FOLD CROSS VALIDATION RESULTS FOR {k_folds} FOLDS')
+print('--------------------------------')
