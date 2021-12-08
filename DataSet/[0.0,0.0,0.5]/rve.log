@@ -1,0 +1,1036 @@
+Log file created on Thu Nov 25 10:46:01 CET 2021.
+
+userinput.mesh init 
+Reading input with userinput.mesh from file rve.msh
+ ...Adding 1636 nodes.
+ ...Adding 3138 elements.
+ ... stored ElementGroup gmsh0 with 1524 elements.
+ ... stored ElementGroup gmsh1 with 1614 elements.
+
+ ...Created NodeGroup `corner0' with 1 nodes.
+ namely [ 82 ]
+ ...Created NodeGroup `cornerx' with 1 nodes.
+ namely [ 83 ]
+ ...Created NodeGroup `xmin' with 35 nodes.
+ namely [ 4, 5, 6, 33, 34, 35, 48, 49, 50, 81, 82, 108, 109, 110, 111, 237, 238, 313, 314, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492 ]
+ ...Created NodeGroup `xmax' with 35 nodes.
+ namely [ 8, 9, 10, 29, 30, 31, 54, 55, 56, 83, 84, 126, 127, 128, 129, 217, 218, 333, 334, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527 ]
+ ...Created NodeGroup `cornery' with 1 nodes.
+ namely [ 81 ]
+ ...Created NodeGroup `ymin' with 33 nodes.
+ namely [ 15, 16, 17, 22, 23, 24, 82, 83, 156, 157, 158, 159, 187, 188, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+ ...Created NodeGroup `ymax' with 33 nodes.
+ namely [ 11, 12, 13, 18, 19, 20, 81, 84, 138, 139, 140, 141, 169, 170, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546 ]
+  ...Sorted NodeGroup `xmax' wrt `xmin'
+  ...Sorted NodeGroup `ymax' wrt `ymin'
+Reading data from `hmelro3.data' ...
+
+  hmelro3.data, line 2: reading tag `Function' ...
+  hmelro3.data, line 52: done reading tag `Function'
+  hmelro3.data, line 54: reading tag `Function' ...
+  hmelro3.data, line 65: done reading tag `Function'
+
+Created a new model named `model'.
+
+Making NodeGroups from PeriodicBCModel
+ ...Created NodeGroup `corner0' with 1 nodes.
+ namely [ 82 ]
+ ...Created NodeGroup `cornerx' with 1 nodes.
+ namely [ 83 ]
+ ...Created NodeGroup `xmin' with 35 nodes.
+ namely [ 4, 5, 6, 33, 34, 35, 48, 49, 50, 81, 82, 108, 109, 110, 111, 237, 238, 313, 314, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492 ]
+ ...Created NodeGroup `xmax' with 35 nodes.
+ namely [ 8, 9, 10, 29, 30, 31, 54, 55, 56, 83, 84, 126, 127, 128, 129, 217, 218, 333, 334, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527 ]
+ ...Created NodeGroup `cornery' with 1 nodes.
+ namely [ 81 ]
+ ...Created NodeGroup `ymin' with 33 nodes.
+ namely [ 15, 16, 17, 22, 23, 24, 82, 83, 156, 157, 158, 159, 187, 188, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+ ...Created NodeGroup `ymax' with 33 nodes.
+ namely [ 11, 12, 13, 18, 19, 20, 81, 84, 138, 139, 140, 141, 169, 170, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546 ]
+  ...Sorted NodeGroup `xmax' wrt `xmin'
+  ...Sorted NodeGroup `ymax' wrt `ymin'
+Data summary:
+
+  nodes ......................................... 1636
+  node dofs ..................................... 3272
+  node groups ................................... 9
+  node tables ................................... 0
+  node data bases ............................... 0
+  elements ...................................... 3138
+  element groups ................................ 5
+  element tables ................................ 0
+  element data bases ............................ 0
+  boundaries .................................... 0
+  boundary groups ............................... 2
+  boundary tables ............................... 0
+  boundary data bases ........................... 0
+  functions ..................................... 2
+
+Application configuration data:
+
+  log	=
+  {
+    file	= "-rve.log";
+    rank	= 0;
+    pattern	= "*.info";
+    logPrefix	= "";
+    outPrefix	= "";
+    warnPrefix	= "*** WARNING: ";
+    errPrefix	= "*** ERROR: ";
+  };
+  control	=
+  {
+    prompt	= ">";
+    cmdFile	= "-";
+    fgMode	= false;
+    pause	= -1.00000;
+    runWhile	= "i<50";
+  };
+  usermodules	=
+  {
+    stepper	=
+    {
+      type	= "AdaptiveStep";
+      writeStats	= false;
+      reduction	= 0.800000;
+      startIncr	= 5.00000e-05;
+      maxIncr	= 5.00000e-05;
+      minIncr	= 5.00000e-05;
+      optIter	= 5;
+      dmMaxIter	= 0;
+      maxIter	= 0;
+      solver	=
+      {
+        maxIter	= 20;
+        tiny	= 1.00000e-300;
+        precision	= 0.000100000;
+        maxIncr	= 10.0000;
+        lineSearch	= false;
+        deltaCons	= false;
+        bounds	= [];
+        updateWhen	= none;
+        solver	=
+        {
+          type	= "SkylineLU";
+          lenient	= true;
+          precision	= 5.00000e-05;
+          zeroThreshold	= 1.49012e-08;
+          maxZeroPivots	= 0;
+          reorder	= true;
+          useThreads	= false;
+          printPivots	= false;
+        };
+      };
+    };
+    sample	=
+    {
+      file	= "lodi.dat";
+      header	= "";
+      separator	= " ";
+      append	= false;
+      precision	= 8;
+      dataSets	= [ "i", "model.model.lodiright.disp[0] - model.model.lodileft.disp[0]", "model.model.lodiright.load[0]",
+      "model.model.loditop.disp[1] - model.model.lodibot.disp[1]", "model.model.loditop.load[1]", "model.model.loditop.disp[0] - model.model.lodibot.disp[0]",
+      "model.model.loditop.load[0]" ];
+      sampleWhen	= "accepted";
+    };
+    paraview	=
+    {
+      output_format	= "para_%d";
+      output_file	= "vtu";
+      reportIntervall	= 1;
+      groups	= [ "gmsh1" ];
+      gmsh1	=
+      {
+        shape	= "Triangle3";
+        disps	= [ "dx", "dy" ];
+        el_data	= [];
+        node_data	= [ "nodalStress", "nodalHistory" ];
+      };
+    };
+  };
+  userinput	=
+  {
+    mesh	=
+    {
+      dim	= 2;
+      file	= "rve.msh";
+      doElemGroups	= true;
+      lowOrderCopy	= false;
+      nodeGroups	= [];
+      elemGroups	= [];
+    };
+    pbc	=
+    {
+      nodeGroups	= [ "corner0", "cornerx", "xmin", "xmax", "cornery", "ymin", "ymax" ];
+      elemGroups	= [];
+      corner0	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+        ytype	= "min";
+      };
+      cornerx	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "max";
+        ytype	= "min";
+      };
+      xmin	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+      };
+      xmax	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "max";
+      };
+      cornery	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        xtype	= "min";
+        ytype	= "max";
+      };
+      ymin	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        ytype	= "min";
+      };
+      ymax	=
+      {
+        all	= false;
+        eps	= 1.00000e-05;
+        ytype	= "max";
+      };
+    };
+    hardening	=
+    {
+      storageMode	= "Default";
+      file	= "hmelro3.data";
+      maxParts	= 0;
+      tableFilter	= "*";
+      dbaseFilter	= "*";
+      funcFilter	= "*";
+    };
+  };
+  storageMode	= "Default";
+  shape	=
+  {
+    shapeTable	=
+    {
+      type	= "Auto";
+      boundaryElems	= "";
+      interfaceElems	= "";
+      maxPrecision	= 0;
+    };
+  };
+  model	=
+  {
+    type	= "Matrix";
+    model	=
+    {
+      type	= "Multi";
+      models	= [ "matrix", "fibers", "fixed", "bc", "pbc", "lodileft", "lodiright", "lodibot", "loditop"
+      ];
+      matrix	=
+      {
+        type	= "Stress";
+        elements	= "gmsh1";
+        shape	=
+        {
+          type	= "Triangle3";
+          shapeFuncs	=
+          {
+            type	= "Linear";
+          };
+          intScheme	= [ "Gauss1", "Gauss2", "Gauss2", "Gauss2" ];
+        };
+        material	=
+        {
+          type	= "Melro";
+          rank	= 2;
+          E	= 3760.00;
+          nu	= 0.300000;
+          anmodel	= "PLANE_STRAIN";
+          rmMaxIter	= 1000;
+          rmTolerance	= 1.00000e-10;
+          poissonP	= 0.390000;
+          sigmaC	= "sc(x)";
+          sigmaT	= "st(x)";
+        };
+        thickness	= 1.00000;
+        writeState	= false;
+      };
+      fibers	=
+      {
+        type	= "Stress";
+        elements	= "gmsh0";
+        shape	=
+        {
+          type	= "Triangle3";
+          shapeFuncs	=
+          {
+            type	= "Linear";
+          };
+          intScheme	= [ "Gauss1", "Gauss2", "Gauss2", "Gauss2" ];
+        };
+        material	=
+        {
+          type	= "Isotropic";
+          rank	= 2;
+          E	= 74000.0;
+          nu	= 0.200000;
+          anmodel	= "PLANE_STRAIN";
+          alpha	= 0.00000;
+          swelling_coeff	= 0.00000;
+        };
+        thickness	= 1.00000;
+        writeState	= false;
+      };
+      fixed	=
+      {
+        type	= "BC";
+        mode	= "disp";
+        nodeGroups	= [ "cornerx" ];
+        dofs	= [ "dy" ];
+        unitVec	= [ 0.00000 ];
+        step	= 5.00000e-05;
+        maxNorm	= 1.79769e+308;
+        shape	= "t";
+      };
+      bc	=
+      {
+        type	= "BC";
+        mode	= "disp";
+        nodeGroups	= [ "cornerx", "cornery", "cornery" ];
+        dofs	= [ "dx", "dy", "dx" ];
+        unitVec	= [ 0.00000, 0.00000, 0.500000 ];
+        step	= 5.00000e-05;
+        maxNorm	= 1.79769e+308;
+        shape	= "t";
+      };
+      pbc	=
+      {
+        type	= "PeriodicBC";
+        duplicatedNodes	= "";
+        strainRate	= [];
+        strainPath	= false;
+      };
+      lodileft	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94281997120128;
+      };
+      lodiright	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94281997120208;
+      };
+      lodibot	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94281997120288;
+      };
+      loditop	=
+      {
+        type	= "LoadDisp";
+        nodes	= jem::Array<jem::idx_t,1>@94281997120368;
+      };
+    };
+    debug	= 0;
+    linear	= false;
+    matrix0	=
+    {
+      type	= "Sparse";
+      symmetric	= false;
+      optimize	= "Runtime";
+    };
+  };
+  init	=
+  {
+    reorder	= false;
+    vectors	= [];
+  };
+
+*** WARNING: Unknown properties:
+
+*** WARNING:   timeStep
+*** WARNING:   usermodules.view
+*** WARNING:   usermodules.view.dataSets
+*** WARNING:   usermodules.view.hist
+*** WARNING:   usermodules.view.hist.table
+*** WARNING:   usermodules.view.hist.type
+*** WARNING:   usermodules.view.mesh
+*** WARNING:   usermodules.view.mesh.colors
+*** WARNING:   usermodules.view.mesh.colors.data
+*** WARNING:   usermodules.view.mesh.colors.type
+*** WARNING:   usermodules.view.mesh.plugins
+*** WARNING:   usermodules.view.type
+*** WARNING:   usermodules.view.updateWhen
+
+*** WARNING: Initialization phase completed with warnings.
+
+  Elapsed CPU  time : 3.110 seconds.
+  Elapsed real time : 17.72 seconds.
+
+Iteration       : 0
+Elapsed runtime : 17.72 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 5.2272e-02
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 4.7771e-13
+The Newton-Raphson solver converged in 1 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 1
+Simulation time : 5.000e-05
+Elapsed runtime : 17.81 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.0454e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.6153e-13
+The Newton-Raphson solver converged in 1 iterations
+
+Time step       : 2
+Simulation time : 0.0001000
+Elapsed runtime : 17.89 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.5682e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.4944e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 5.4379e-09
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 3
+Simulation time : 0.0001500
+Elapsed runtime : 18.01 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 2.0907e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 5.3137e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.6790e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 4
+Simulation time : 0.0002000
+Elapsed runtime : 18.13 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 2.6121e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 7.5555e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.9314e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 5
+Simulation time : 0.0002500
+Elapsed runtime : 18.25 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 3.1302e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 6.0109e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.6544e-05
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 6
+Simulation time : 0.0003000
+Elapsed runtime : 18.39 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 3.6451e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 5.6934e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.6187e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 7
+Simulation time : 0.0003500
+Elapsed runtime : 18.51 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 4.1564e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 4.5400e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.8512e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 8
+Simulation time : 0.0004000
+Elapsed runtime : 18.63 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 4.6628e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.6698e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.7286e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 9
+Simulation time : 0.0004500
+Elapsed runtime : 18.75 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 5.1651e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.7357e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.0235e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 10
+Simulation time : 0.0005000
+Elapsed runtime : 18.88 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 5.6618e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.5063e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.4071e-06
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 11
+Simulation time : 0.0005500
+Elapsed runtime : 19.02 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 6.1522e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.2381e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.7295e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 12
+Simulation time : 0.0006000
+Elapsed runtime : 19.15 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 6.6364e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.2214e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 5.9668e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 13
+Simulation time : 0.0006500
+Elapsed runtime : 19.27 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 7.1159e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.2435e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.0320e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 14
+Simulation time : 0.0007000
+Elapsed runtime : 19.39 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 7.5879e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 3.1156e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.9425e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 15
+Simulation time : 0.0007500
+Elapsed runtime : 19.51 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 8.0526e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.6861e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.8281e-05
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 16
+Simulation time : 0.0008000
+Elapsed runtime : 19.63 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 8.5111e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.6425e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.5827e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 17
+Simulation time : 0.0008500
+Elapsed runtime : 19.76 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 8.9612e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.5406e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.6024e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 18
+Simulation time : 0.0009000
+Elapsed runtime : 19.89 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 9.4043e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.6193e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 8.0374e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 19
+Simulation time : 0.0009500
+Elapsed runtime : 20.01 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 9.8386e-01
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.4511e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 5.9093e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 20
+Simulation time : 0.001000
+Elapsed runtime : 20.13 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.0264e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.3757e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 7.8977e-06
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 21
+Simulation time : 0.001050
+Elapsed runtime : 20.25 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.0680e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.3029e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.1806e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 22
+Simulation time : 0.001100
+Elapsed runtime : 20.39 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.1087e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.9983e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.7480e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 23
+Simulation time : 0.001150
+Elapsed runtime : 20.51 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.1486e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 2.2524e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.2439e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 24
+Simulation time : 0.001200
+Elapsed runtime : 20.63 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.1874e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.9763e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.1510e-05
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 25
+Simulation time : 0.001250
+Elapsed runtime : 20.76 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.2253e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.7398e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.2081e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 26
+Simulation time : 0.001300
+Elapsed runtime : 20.88 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.2623e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.6585e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.9985e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 27
+Simulation time : 0.001350
+Elapsed runtime : 21.02 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.2985e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.7989e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.7533e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 28
+Simulation time : 0.001400
+Elapsed runtime : 21.18 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.3336e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.5947e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.8418e-06
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 29
+Simulation time : 0.001450
+Elapsed runtime : 21.33 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.3679e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.6987e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.6491e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 30
+Simulation time : 0.001500
+Elapsed runtime : 21.46 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.4014e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.9593e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 9.8983e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 31
+Simulation time : 0.001550
+Elapsed runtime : 21.59 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.4338e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.8249e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.4191e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 32
+Simulation time : 0.001600
+Elapsed runtime : 21.74 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.4653e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.7000e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 7.8724e-07
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 33
+Simulation time : 0.001650
+Elapsed runtime : 21.86 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.4959e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.2402e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.3012e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 34
+Simulation time : 0.001700
+Elapsed runtime : 21.99 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.5256e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.6816e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.6746e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 35
+Simulation time : 0.001750
+Elapsed runtime : 22.11 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.5546e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.5957e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 9.8355e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 36
+Simulation time : 0.001800
+Elapsed runtime : 22.24 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.5823e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.1783e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 8.7727e-07
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 37
+Simulation time : 0.001850
+Elapsed runtime : 22.36 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.6093e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.8047e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.5249e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 38
+Simulation time : 0.001900
+Elapsed runtime : 22.50 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.6357e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.4350e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.8839e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 39
+Simulation time : 0.001950
+Elapsed runtime : 22.62 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.6609e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.1861e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 2.1602e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 40
+Simulation time : 0.002000
+Elapsed runtime : 22.75 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.6853e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.0042e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.0699e-06
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 41
+Simulation time : 0.002050
+Elapsed runtime : 22.88 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.7091e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.5166e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 3.2880e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 42
+Simulation time : 0.002100
+Elapsed runtime : 23.01 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.7318e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.7259e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.0841e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 43
+Simulation time : 0.002150
+Elapsed runtime : 23.14 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.7537e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.5345e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.0362e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 44
+Simulation time : 0.002200
+Elapsed runtime : 23.26 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.7749e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 8.2245e-04
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 6.2948e-07
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 45
+Simulation time : 0.002250
+Elapsed runtime : 23.39 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.7955e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.8828e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.8906e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 46
+Simulation time : 0.002300
+Elapsed runtime : 23.52 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.8149e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 9.5757e-04
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 5.0161e-07
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 47
+Simulation time : 0.002350
+Elapsed runtime : 23.65 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.8340e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.3597e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.1361e-05
+The Newton-Raphson solver converged in 2 iterations
+
+Time step       : 48
+Simulation time : 0.002400
+Elapsed runtime : 23.78 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.8522e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.5061e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 4.3918e-06
+The Newton-Raphson solver converged in 2 iterations
+
+*** ERROR: Error reading command: end of file encountered while reading from the terminal
+*** ERROR:     (command ignored)
+
+Time step       : 49
+Simulation time : 0.002450
+Elapsed runtime : 23.93 seconds
+
+Setting step size to 5.000e-05 (100.0% of initial step size)
+
+Starting the Newton-Raphson solver `usermodules.stepper.solver' ...
+module `usermodules.stepper.solver' : residual scale factor = 1.8697e+00
+module `usermodules.stepper.solver' : iter = 1, scaled residual = 1.0145e-03
+module `usermodules.stepper.solver' : iter = 2, scaled residual = 1.1432e-06
+The Newton-Raphson solver converged in 2 iterations
+
+Runtime phase completed successfully.
+
+  Elapsed CPU  time : 8.790 seconds.
+  Elapsed real time : 24.06 seconds.
+
+AdaptiveStepModule statistics ...
+... total # of runs: 50
+... # of commits:    50
+... # of continues:  0
+-------  ( of which     0 were canceled.)
+... # of cancels:    0
+...
+... total # of iterations: 98
+-------  ( of which 0 after continue.)
+Shutdown phase completed successfully.
+
+  Elapsed CPU  time : 8.790 seconds.
+  Elapsed real time : 24.07 seconds.
+
+*** WARNING: One or more warnings have been printed.
+
