@@ -17,7 +17,7 @@ import pandas as pd
 
         
 
-def get_exp_z(W,sigma,M):
+def get_exp_z(W,sigma,M, desired_dim, N, data, mu):
     exp_z = np.zeros((N,desired_dim))
 
     
@@ -29,15 +29,15 @@ def get_exp_z(W,sigma,M):
 def get_exp_zzt(exp_z,M,sig):
     return sig**2 * linalg.inv(M) + np.outer(exp_z,exp_z) #changed from np.dot(exp_z,np.transpose(exp_z))
 
-def E_step(W,sigma):
+def E_step(W,sigma, desired_dim,N,data, mu):
     M = (np.transpose(W) @ W) + sigma**2*sp.eye(desired_dim) #changed from np.dot(np.transpose(W),W)
     
-    exp_z = get_exp_z(W,sigma,M)
+    exp_z = get_exp_z(W,sigma,M, desired_dim, N, data, mu)
     
     return exp_z,M
     
 
-def get_W(exp_z,M,prev_sig):
+def get_W(exp_z,M,prev_sig,D, desired_dim, data,mu, N):
     W_one = np.zeros((D,desired_dim))
     W_two = np.zeros((desired_dim,desired_dim))
     
@@ -50,7 +50,7 @@ def get_W(exp_z,M,prev_sig):
     return W_new
     
 
-def get_sigma(W,exp_z,M,prev_sig):
+def get_sigma(W,exp_z,M, D, prev_sig,data, mu,N):
     sig_new = 0
     
     for i in range(0,N):
@@ -61,12 +61,10 @@ def get_sigma(W,exp_z,M,prev_sig):
     return sig_new
 
 
-def M_step(exp_z,M,prev_sig):
-    W_new = get_W(exp_z,M,prev_sig)
-    sig_new = get_sigma(W_new,exp_z,M,prev_sig)
+def M_step(exp_z,M,prev_sig, D, desired_dim, data, mu,N):
+    W_new = get_W(exp_z,M,prev_sig, D, desired_dim, data, mu, N)
+    sig_new = get_sigma(W_new,exp_z,M,D, prev_sig, data, mu,N)
     return W_new,sig_new
-    
-
 #%% prepare data
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 
@@ -91,14 +89,16 @@ old_sig = 1
 k = 0
 
 while k < 100:
-    z,temp_M = E_step(old_W, old_sig)
-    old_W, old_sig = M_step(z,temp_M,old_sig)
-    print(old_sig)
+    z,temp_M = E_step(old_W, old_sig, desired_dim,N, data, mu)
+    old_W, old_sig = M_step(z,temp_M,old_sig,D, desired_dim,data, mu, N)
     k +=1
+plt.scatter(z[:,0], z[:,1])
+plt.show()
 
 
 
 #%% Ignore this
+"""
 cov = np.cov(data,rowvar=False)
 eigenValues, eigenVectors = linalg.eig(cov)
 
@@ -106,6 +106,7 @@ idx = eigenValues.argsort()[::-1]
 eigenValues = eigenValues[idx]
 eigenVectors = eigenVectors[:,idx]
 print(eigenVectors)
+"""
     
 #%%
 # def update_W_sigma(exp_z,old_W,old_sig):
