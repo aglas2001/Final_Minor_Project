@@ -1,24 +1,39 @@
 import torch
 import numpy as np
-import xml.etree.ElementTree as ET
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
+from torch.utils.data import Dataset, DataLoader
+from os import listdir
+from os.path import isfile, join
+
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
-    def __init__(self, data_file):
-        data = np.loadtxt(data_file)
-        self.displacements = data
+    def __init__(self, data_folder):
+        file_count = len(listdir(data_folder))
+
+        displacement_matrix = np.zeros((file_count, 1034*2))
+
+        def order(input):
+            return int(input.strip("para_.txt"))
+
+        count = 0
+
+        for data_file in sorted(listdir(data_folder), key=order):
+            if isfile(join(data_folder, data_file)):
+                data = np.loadtxt(join(data_folder, data_file), usecols=(0,1))
+                data = data.flatten()
+                displacement_matrix[count] = data
+                count += 1
+        self.displacements = displacement_matrix
+        print(self.displacements)
 
     def __len__(self):
         return len(self.displacements)
 
-    def __getitem__(self, index):
-        displacement_x = self.displacements[index, 0]
-        displacement_y = self.displacements[index, 1]
-        displacement_z = self.displacements[index, 2]
-
-        return displacement_x, displacement_y, displacement_z
+    #def __getitem__(self, index):
+    #    displacement_x = self.displacements[index, 0]
+    #    displacement_y = self.displacements[index, 1]
+    #
+    #    return displacement_x, displacement_y
 
 #An example data loader using the custom dataset class
 #training_data = DisplacementDataset("../test_data/para_1.txt")
@@ -27,3 +42,5 @@ class DisplacementDataset(Dataset):
 #train_displacements_x, train_displacements_y, train_displacements_z = next(iter(train_dataloader))
 #print(f"Displacements batch shape: {train_displacements_x.size()}")
 #print(f"Label: {train_displacements_y}")
+
+DisplacementDataset("../test_data/")
