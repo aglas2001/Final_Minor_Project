@@ -63,14 +63,21 @@ displacements_x = np.zeros((50,1034))
 displacements_y = np.zeros((50,1034))
 displacements_z = np.zeros((50,1034))
 for i in range(0,50):
-    data = DisplacementDataset("../DataSet/[0.0,1.0,1.0]/para_"+str(i+1)+".vtu")
+    data = DisplacementDataset("../DataSet/Newfolder_0.5/[0.0,1.0,1.0]/para_"+str(i+1)+".vtu")
     displacements_x[i,:], displacements_y[i,:], displacements_z[i,:] = data.__getitem__()
     
 
 
 #%% Plot load-displacement curve:
 
-test = displacements_x[:,8]
-    
-plt.plot(test)
+linear = displacements_x[:,8]
+plt.plot(linear)
+
+#%%
+nonlin = displacements_x[:,150]
+plt.plot(nonlin)
+
+#%%
+weird = displacements_x[:,15]
+plt.plot(weird)
     

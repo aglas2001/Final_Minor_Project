@@ -53,8 +53,9 @@ for target, color in zip(targets,colors):
                , s = 50)
 ax.legend(targets)
 ax.grid()
+plt.show()
 
-pca.explained_variance_ratio_
+#pca.explained_variance_ratio_
 
 
 
