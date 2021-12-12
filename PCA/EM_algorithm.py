@@ -65,7 +65,15 @@ def M_step(exp_z,M,prev_sig):
     W_new = get_W(exp_z,M,prev_sig)
     sig_new = get_sigma(W_new,exp_z,M,prev_sig)
     return W_new,sig_new
-    
+
+def reconstruction(W, z, mean, sig, N, D):
+    x = np.zeros((D,N))
+    for i in range(0,N):
+        sigI = np.random.randn((4))
+        sigI = sigI*(math.sqrt(sig**2/np.cov(sigI)))
+        #print(np.cov(sigI), sig**2)
+        x[:, i] = W@ z[i,:].T + mean + sigI
+    return x    
 
 #%% prepare data
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
