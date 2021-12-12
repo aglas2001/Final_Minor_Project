@@ -69,7 +69,7 @@ def M_step(exp_z,M,prev_sig):
 def reconstruction(W, z, mean, sig, N, D):
     x = np.zeros((D,N))
     for i in range(0,N):
-        sigI = np.random.randn((4))
+        sigI = np.random.randn((D))
         sigI = sigI*(math.sqrt(sig**2/np.cov(sigI)))
         #print(np.cov(sigI), sig**2)
         x[:, i] = W@ z[i,:].T + mean + sigI
