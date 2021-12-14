@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[98]:
+
 
 
 # import packages
@@ -21,18 +21,11 @@ from torch.utils.data import DataLoader
 from torchvision.utils import save_image
 
 
-# In[99]:
-
-
 #Select GPU if available 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # image transformations
 transform = transforms.Compose([transforms.ToTensor(),])
-
-
-# In[100]:
-
 
 batch_size = 128
 
@@ -62,7 +55,7 @@ checking_data, n_o_i = next(iter(train_loader))
 print(f"Feature batch shape: {checking_data.size()}")
 
 
-# In[101]:
+
 
 
 #VAE encoder and decoder
@@ -117,15 +110,6 @@ class VariationalAutoencoder(nn.Module):
     
 
 
-# In[ ]:
-
-
-
-
-
-# In[102]:
-
-
 def train(model, dataloader, optimizer):
     model.train()
     running_loss = 0
@@ -165,9 +149,6 @@ def validate(model, dataloader):
     return val_loss_1
 
 
-# In[103]:
-
-
 latent_dimensions = 4
 lamda = 0.0001
 
@@ -177,16 +158,17 @@ learning_rate = 0.0001
 
 optimizer = optim.Adam(VAE.parameters(), lr=learning_rate, weight_decay=1e-5)
 
+retrain = input("Retrain the model? (y/n)\n")
 
-num_epochs = 10
-for epoch in range(num_epochs):
-    train_loss, VAE2 = train(VAE, train_loader, optimizer)
-    val_loss = validate(VAE, val_loader)
-    print('\n EPOCH {}/{} \t train loss {:.3f} \t val loss {:.3f}'.format(epoch + 1, num_epochs,train_loss,val_loss))
-
-
-# In[107]:
-
+if (not os.path.isfile("./model.pth")) or retrain == "y":
+    num_epochs = 10
+    for epoch in range(num_epochs):
+        train_loss, VAE = train(VAE, train_loader, optimizer)
+        val_loss = validate(VAE, val_loader)
+        torch.save(VAE.state_dict(), "./model.pth")
+        print('\n EPOCH {}/{} \t train loss {:.3f} \t val loss {:.3f}'.format(epoch + 1, num_epochs,train_loss,val_loss))
+else:
+    VAE.load_state_dict(torch.load("./model.pth"))
 
 n = 5
 
@@ -194,14 +176,16 @@ def plot_rec(encoder,decoder,n):
     plt.figure(figsize = (8,4.5))
     for i in range(n):
         ax = plt.subplot(2,n,i+1)
-        img = validation_data[i][0].to(device)
+        img = validation_data[i+np.random.randint(0, 778)][0].to(device)
         plt.imshow(img.squeeze().numpy(), cmap='gist_gray')
     
 
         encoder.eval()
         decoder.eval()
         with torch.no_grad():
-            rec_img  = decoder(encoder(img))
+            z = encoder(img)
+            print(z)
+            rec_img  = decoder(z)
         
         ax = plt.subplot(2, n, i + 1 + n)
         plt.imshow(rec_img.cpu().squeeze().numpy(), cmap='gist_gray') 
@@ -209,15 +193,6 @@ def plot_rec(encoder,decoder,n):
     plt.show()
     
 plot_rec(VAE.encoder, VAE.decoder, n)
-
-
-# In[ ]:
-
-
-
-
-
-# In[105]:
 
 
 def plot_latent(autoencoder, data, num_batches=100):
@@ -229,10 +204,10 @@ def plot_latent(autoencoder, data, num_batches=100):
             plt.colorbar()
             break
             
-plot_latent(VAE2, train_loader)
+plot_latent(VAE, train_loader)
 
 
-# In[108]:
+
 
 
 #def plot_reconstructed(decoder, r0=(-5, 10), r1=(-10, 5), n2=10):
@@ -248,70 +223,3 @@ plot_latent(VAE2, train_loader)
     
     
 #plot_reconstructed(VAE.decoder, r0=(-2, 2), r1=(-2, 2))
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-

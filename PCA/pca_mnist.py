@@ -47,7 +47,7 @@ train_img = scaler.transform(train_img)
 test_img = scaler.transform(test_img)
 
 # Determine how much variance the pc should describe and apply pca:
-pca = PCA(.95)
+pca = PCA(n_components=10)
 pca.fit(train_img)
 train_img = pca.transform(train_img)
 test_img = pca.transform(test_img)

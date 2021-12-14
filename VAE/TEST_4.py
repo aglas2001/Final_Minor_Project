@@ -12,6 +12,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 import torch.optim as optim
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button
 import torch.nn.functional as F
 import numpy as np
  
@@ -49,7 +50,7 @@ validation_data = datasets.MNIST(
 train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
 
-print(len(validation_data))
+print(len(training_data))
 
 checking_data, n_o_i = next(iter(train_loader))
 print(f"Feature batch shape: {checking_data.size()}")
@@ -64,8 +65,9 @@ class VariationalEncoder(nn.Module):
     def __init__(self, latent_dims):
         super(VariationalEncoder, self).__init__()
         self.linear1 = nn.Linear(784, 512)
-        self.linear2 = nn.Linear(512, latent_dimensions)
-        self.linear3 = nn.Linear(512, latent_dimensions)
+        self.linear2 = nn.Linear(512, 128)
+        self.linear3 = nn.Linear(128, latent_dimensions)
+        self.linear4 = nn.Linear(128, latent_dimensions)
 
         self.N = torch.distributions.Normal(0, 1)
         #self.N.loc = self.N.loc.cuda() # hack to get sampling on the GPU
@@ -75,10 +77,11 @@ class VariationalEncoder(nn.Module):
     def forward(self, x):
         x = torch.flatten(x, start_dim=1)
         x = torch.relu(self.linear1(x))
+        x = torch.tanh(self.linear2(x))
         
         #reparametrization
-        mu =  self.linear2(x)
-        sigma = torch.exp(self.linear3(x))
+        mu =  self.linear3(x)
+        sigma = torch.exp(self.linear4(x))
         z = mu + sigma*self.N.sample(mu.shape)
         
         #KL-term
@@ -88,12 +91,14 @@ class VariationalEncoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, latent_dims):
         super(Decoder, self).__init__()
-        self.linear1 = nn.Linear(latent_dimensions, 512)
-        self.linear2 = nn.Linear(512, 784)
+        self.linear1 = nn.Linear(latent_dimensions, 128)
+        self.linear2 = nn.Linear(128, 512)
+        self.linear3 = nn.Linear(512, 784)
 
     def forward(self, z):
-        z = torch.tanh(self.linear1(z))
-        z = torch.relu(self.linear2(z))
+        z = torch.relu(self.linear1(z))
+        z = torch.tanh(self.linear2(z))
+        z = torch.sigmoid(self.linear3(z))
         
         return z.reshape((-1, 1, 28, 28))
     
@@ -161,7 +166,7 @@ optimizer = optim.Adam(VAE.parameters(), lr=learning_rate, weight_decay=1e-5)
 retrain = input("Retrain the model? (y/n)\n")
 
 if (not os.path.isfile("./model.pth")) or retrain == "y":
-    num_epochs = 10
+    num_epochs = 30
     for epoch in range(num_epochs):
         train_loss, VAE = train(VAE, train_loader, optimizer)
         val_loss = validate(VAE, val_loader)
@@ -205,6 +210,59 @@ def plot_latent(autoencoder, data, num_batches=100):
             break
             
 plot_latent(VAE, train_loader)
+
+edit_number = input("Edit number with latent dimensions? (y/n)\n")
+
+if edit_number == "y":
+
+    img = validation_data[np.random.randint(0, 9995)][0].to(device)
+
+    VAE.encoder.eval()
+    VAE.decoder.eval()
+
+    z_arr = np.zeros(latent_dimensions)
+
+    with torch.no_grad():
+        z = VAE.encoder(img)
+        z_arr = z.to("cpu").detach().numpy()
+        rec_img  = VAE.decoder(z)
+
+    fig = plt.figure()
+    plot = plt.imshow(rec_img.squeeze().numpy(), cmap='gist_gray')
+
+    plt.subplots_adjust(bottom=0.4)
+
+    #for n in range(latent_dimensions):
+
+    z_arr = z_arr[0]
+
+    ax_z1 = plt.axes([0.25, 0.1, 0.65, 0.03])
+    z1_slider = Slider(ax=ax_z1, label='Z1', valmin=-20, valmax=20, valinit=z_arr[0])
+    ax_z2 = plt.axes([0.25, 0.15, 0.65, 0.03])
+    z2_slider = Slider(ax=ax_z2, label='Z2', valmin=-20, valmax=20, valinit=z_arr[1])
+    ax_z3 = plt.axes([0.25, 0.2, 0.65, 0.03])
+    z3_slider = Slider(ax=ax_z3, label='Z3', valmin=-20, valmax=20, valinit=z_arr[2])
+    ax_z4 = plt.axes([0.25, 0.25, 0.65, 0.03])
+    z4_slider = Slider(ax=ax_z4, label='Z4', valmin=-20, valmax=20, valinit=z_arr[3])
+
+    def update_plot(val):
+        z_arr = np.array([z1_slider.val, z2_slider.val, z3_slider.val, z4_slider.val], dtype=np.single)
+        z = torch.from_numpy(z_arr)
+        VAE.decoder.eval()
+        with torch.no_grad():
+            rec_img = VAE.decoder(z)
+        plot.set_data(rec_img.squeeze().numpy())
+        fig.canvas.draw_idle()
+
+    z1_slider.on_changed(update_plot)
+    z2_slider.on_changed(update_plot)
+    z3_slider.on_changed(update_plot)
+    z4_slider.on_changed(update_plot)
+
+    #resetax = plt.axes([0.8, 0.025, 0.1, 0.04])
+    #button = Button(resetax, 'Reset', hovercolor='0.975')
+
+    plt.show()
 
 
 
