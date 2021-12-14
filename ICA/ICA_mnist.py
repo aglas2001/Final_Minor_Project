@@ -202,7 +202,6 @@ def reconstruct(latentspace):
     return rec_ica_test_plottable_comp0
 
 
-
 def update(val):
     z_arr = np.array([z1_slider.val, z2_slider.val, z3_slider.val, z4_slider.val], dtype=np.single)
     plot.set_data(reconstruct(z_arr))
