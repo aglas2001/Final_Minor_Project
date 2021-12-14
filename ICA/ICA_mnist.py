@@ -10,8 +10,10 @@ from sklearn.decomposition import FastICA
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
 import numpy as np
+import math as m
 from sklearn.decomposition import PCA
 import copy
 
@@ -25,11 +27,6 @@ import copy
 #%% importing dataset, takes a while...
 mnist = fetch_openml('mnist_784')
 
-#%% extra data
-matr01 = np.zeros((2,784))
-for i in range(1,784):
-    matr01[1,i] = 1000
-matr01plot = np.reshape(matr01,(2,28,28))
 #%% Get data
 
 # These are the images
@@ -63,7 +60,7 @@ test_img3 = scaler.transform(test_img)
 #%% PCA
 
 # Determine how much variance the pc should describe and apply pca:
-pca = PCA(.95)
+pca = PCA(n_components=4)
 pca.fit(train_img2)
 train_imgpca = pca.transform(train_img2)
 test_imgpca = pca.transform(test_img2)
@@ -82,7 +79,7 @@ rec_pca_test_plottable = np.reshape(recon_pca_test,(10000,28,28))
 #%%Applying ICA
 
 # # # Give the amount of components wanted and apply ICA:
-ica = FastICA(n_components=4,random_state=0, max_iter = 1000)
+ica = FastICA(n_components=4,random_state=0, max_iter = 200,tol=1e-4)
 
 
 ica.fit(train_img3)
@@ -105,31 +102,9 @@ rec_ica_test_plottable = np.reshape(recon_ica_test,(10000,28,28))
 
 A = ica.mixing_  # Get estimated mixing matrix
 
-#%% 01
-matr01ica = ica.transform(matr01)
-recon_matr01ica = ica.inverse_transform(matr01ica)
-recon_matr01ica = scaler.inverse_transform(recon_matr01ica)
-rec_ica_matr01ica_plottable = np.reshape(recon_matr01ica,(2,28,28))
-
-#%% Try find components
-
-print(test_imgica.shape)
-print(test_imgica[0])
-
-probeer = copy.copy(test_imgica)
-probeer[0,1] = 1
-print(probeer[0])
-
-recon_ica_test_probeer = ica.inverse_transform(probeer)
-recon_ica_test_probeer = scaler.inverse_transform(recon_ica_test_probeer)
-rec_ica_test_plottable_probeer = np.reshape(recon_ica_test_probeer,(10000,28,28))
-
 #%% plotting from train:
 print("Plotting Train")
 for i in range(10):
-     print(i)
-     print('PCA:', 1/784*sum(sum(abs(plottable[i]-recpca_plottable[i]))))
-     print('ICA:', 1/784*sum(sum(abs(plottable[i]-recica_plottable[i]))))
      plt.subplot(2,2,1)
      plt.title(labels[i])
      plt.imshow(plottable[i], cmap = plt.get_cmap('gray'))
@@ -142,22 +117,27 @@ for i in range(10):
      plt.show()
 #%% Plotting from test
 print("Plotting Test")
-for i in range(1):
-    if labelstest[i] == '0':
-        print(i)
-        print('PCA:', 1/784*sum(sum(abs(plottest[i]-rec_pca_test_plottable[i]))))
-        print('ICA:', 1/784*sum(sum(abs(plottest[i]-rec_ica_test_plottable[i]))))
-        plt.subplot(2,2,1)
-        plt.title(labelstest[i])
-        plt.imshow(plottest[i], cmap = plt.get_cmap('gray'))
-        plt.subplot(2,2,2)
-        plt.imshow(rec_pca_test_plottable[i], cmap=plt.get_cmap('gray'))
-        plt.title("PCA")
-        plt.subplot(2,2,3)
-        plt.imshow(rec_ica_test_plottable[i], cmap=plt.get_cmap('gray'))
-        plt.title("ICA")
+if True:
+    for i in range(20):
+        rmsePCA = m.sqrt(mean_squared_error(plottest[i], rec_pca_test_plottable[i]))
+        nrmsePCA = rmsePCA/m.sqrt(np.mean(plottest**2))
+        rmseICA = m.sqrt(mean_squared_error(plottest[i], rec_ica_test_plottable[i]))
+        nrmseICA = rmseICA/m.sqrt(np.mean(plottest**2))
+
+        errorstringPCA = "Reconstruction Error for " + str(labelstest[i])+ " using PCA: "+ str(nrmsePCA)
+        errorstringICA = "Reconstruction Error for " + str(labelstest[i])+ " using ICA: "+ str(nrmseICA)
+        print(errorstringPCA)
+        print(errorstringICA)
+        titlestr = "Reconstructing " + str(labelstest[i])+ " using ICA"
+        fig, axs = plt.subplots(1, 2)
+        fig.suptitle(titlestr, fontsize=16)
+        axs[0].imshow(plottest[i], cmap = plt.get_cmap('gray'))
+        axs[0].set_title(labelstest[i])
+        
+        axs[1].imshow(rec_ica_test_plottable[i], cmap=plt.get_cmap('gray'))
+        axs[1].set_title("ICA recon")
+
         plt.show()
-     
 
 #%% Trying to find what components do
 
@@ -170,7 +150,7 @@ for j in range(4):
         print(test_imgica[i])
 
         comp0 = copy.copy(test_imgica)
-        comp0[i,j] = 0
+        comp0[i,j] /= 10
         print(comp0[i])
 
         recon_ica_test_comp0 = ica.inverse_transform(comp0)
@@ -178,7 +158,7 @@ for j in range(4):
         rec_ica_test_plottable_comp0 = np.reshape(recon_ica_test_comp0,(10000,28,28))
         
         comp1 = copy.copy(test_imgica)
-        comp1[i,j] = 0.01
+        comp1[i,j] *= 10
         print(comp1[i])
 
         recon_ica_test_comp1 = ica.inverse_transform(comp1)
@@ -195,9 +175,9 @@ for j in range(4):
         axs[1].set_title("ICA recon")
 
         axs[2].imshow(rec_ica_test_plottable_comp0[i], cmap=plt.get_cmap('gray'))
-        axs[2].set_title("Comp = 0")
+        axs[2].set_title("Comp /= 10")
         axs[3].imshow(rec_ica_test_plottable_comp1[i], cmap=plt.get_cmap('gray'))
-        axs[3].set_title("Comp = 0.1")
+        axs[3].set_title("Comp *= 10")
         plt.show()
 
 
@@ -211,19 +191,6 @@ for i in range(4):
 
 
 
-
-#%% Plotting from test
-print("Plotting 01")
-for i in range(2):
-    plt.subplot(2,2,1)
-    plt.title(i) 
-    plt.imshow(matr01plot[i], cmap = plt.get_cmap('gray'))
-    plt.subplot(2,2,2)
-    plt.imshow(rec_ica_matr01ica_plottable[i], cmap=plt.get_cmap('gray'))
-    plt.title("recon")
-    plt.show()
-    
-    
 
 
 
