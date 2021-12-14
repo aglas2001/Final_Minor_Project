@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
+from matplotlib.widgets import Slider, Button
 import numpy as np
 import math as m
 from sklearn.decomposition import PCA
@@ -185,7 +186,7 @@ for j in range(4):
 
 
 #%% Components of mixing matrix
-for i in range(4):
+for i in range(1):
     Comp = np.reshape(A[:,i],(28,28))
     plt.imshow(Comp, cmap = plt.get_cmap('gray'))
     plt.show()
@@ -193,5 +194,48 @@ for i in range(4):
 
 
 
+#%%
+def reconstruct(latentspace):
+    recon_ica_test_comp0 = ica.inverse_transform([latentspace])
+    recon_ica_test_comp0 = scaler.inverse_transform(recon_ica_test_comp0)
+    rec_ica_test_plottable_comp0 = np.reshape(recon_ica_test_comp0,(28,28))
+    return rec_ica_test_plottable_comp0
 
+
+
+def update(val):
+    z_arr = np.array([z1_slider.val, z2_slider.val, z3_slider.val, z4_slider.val], dtype=np.single)
+    plot.set_data(reconstruct(z_arr))
+    fig.canvas.draw_idle()
+
+
+#%% Slider
+I = 0
+
+
+fig = plt.figure()
+plot = plt.imshow(rec_ica_test_plottable[I], cmap=plt.get_cmap('gray'))
+plt.subplots_adjust(bottom=0.4)
+
+z_arr = test_imgica[I]
+
+ax_z1 = plt.axes([0.25, 0.1, 0.65, 0.03])
+z1_slider = Slider(ax=ax_z1, label='Z1', valmin=-0.02, valmax=0.02, valinit=z_arr[0])
+ax_z2 = plt.axes([0.25, 0.15, 0.65, 0.03])
+z2_slider = Slider(ax=ax_z2, label='Z2', valmin=-0.02, valmax=0.02, valinit=z_arr[1])
+ax_z3 = plt.axes([0.25, 0.2, 0.65, 0.03])
+z3_slider = Slider(ax=ax_z3, label='Z3', valmin=-0.02, valmax=0.02, valinit=z_arr[2])
+ax_z4 = plt.axes([0.25, 0.25, 0.65, 0.03])
+z4_slider = Slider(ax=ax_z4, label='Z4', valmin=-0.02, valmax=0.02, valinit=z_arr[3])
+    
+z1_slider.on_changed(update)
+z2_slider.on_changed(update)
+z3_slider.on_changed(update)
+z4_slider.on_changed(update)
+
+
+#%%
+c = [-0.0026471,  -0.00515037, -0.00017854, -0.00194802]
+#%%
+plt.imshow(reconstruct(c), cmap=plt.get_cmap('gray'))
 
