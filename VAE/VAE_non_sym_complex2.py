@@ -42,6 +42,11 @@ validation_data = datasets.MNIST(
     transform=transform,
 )
 
+label_indices_training = training_data.targets == 7
+label_indices_validation = validation_data.targets == 7
+training_data.data, training_data.targets = training_data.data[label_indices_training], training_data.targets[label_indices_training]
+validation_data.data, validation_data.targets = validation_data.data[label_indices_validation], validation_data.targets[label_indices_validation]
+
 # Create data loaders.
 train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
@@ -197,7 +202,7 @@ optimizer = optim.Adam(VAE.parameters(), lr=learning_rate)
 
 retrain = input("Retrain the model? (y/n)\n")
 
-if (not os.path.isfile("./Model_Saves/model_lamda_complex_0.pth")) or retrain == "y":
+if (not os.path.isfile("./saved_models/model_lamda_complex_0.pth")) or retrain == "y":
     num_epochs = 10
 
     for i in range(n):
@@ -205,7 +210,7 @@ if (not os.path.isfile("./Model_Saves/model_lamda_complex_0.pth")) or retrain ==
         for epoch in range(num_epochs):
             train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
             val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
-            torch.save(VAE.state_dict(), "./Model_Saves/model_lamda_complex_{}.pth".format(i))
+            torch.save(VAE.state_dict(), "./saved_models/model_lamda_complex_{}.pth".format(i))
 
 
         print('\n lamda = {} \t train loss {:.3f} \t val loss {:.3f} '.format(lamda,train_loss,val_loss))
@@ -220,7 +225,7 @@ if (not os.path.isfile("./Model_Saves/model_lamda_complex_0.pth")) or retrain ==
 
 
 else:
-    VAE.load_state_dict(torch.load("./Model_Saves/model_lamda_complex_4.pth"))
+    VAE.load_state_dict(torch.load("./saved_models/model_lamda_complex_4.pth"))
 
 
 # In[59]:
@@ -248,7 +253,7 @@ plt.show()
 # In[47]:
 
 
-VAE.load_state_dict(torch.load("./Model_Saves/model_lamda_complex_5.pth"))
+VAE.load_state_dict(torch.load("./saved_models/model_lamda_complex_5.pth"))
 
 
 # In[53]:
@@ -260,7 +265,7 @@ def plot_rec(encoder,decoder,n):
     plt.figure(figsize = (8,4.5))
     for i in range(n):
         ax = plt.subplot(2,n,i+1)
-        img = validation_data[i+np.random.randint(0, 9995)][0].to(device)
+        img = validation_data[i+np.random.randint(0, 1020)][0].to(device)
         plt.imshow(img.squeeze().numpy(), cmap='gist_gray')
 
 
@@ -308,7 +313,7 @@ edit_number = input("Edit number with latent dimensions? (y/n)\n")
 
 if edit_number == "y":
 
-    img = validation_data[np.random.randint(0, 9995)][0].to(device)
+    img = validation_data[np.random.randint(0, 1020)][0].to(device)
 
     VAE.encoder.eval()
     VAE.decoder.eval()
