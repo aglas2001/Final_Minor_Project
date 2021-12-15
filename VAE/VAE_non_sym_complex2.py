@@ -222,7 +222,9 @@ if (not os.path.isfile("./saved_models/model_lamda_complex_0.pth")) or retrain =
 
         Recon_loss_v[i] = MSE_v
         KL_loss_v[i] = KL_v
-
+        
+    np.savetxt("Recon_loss.txt", np.transpose([Recon_loss_t, Recon_loss_v]), delimiter = ",")
+    np.savetxt("KL_loss.txt",  np.transpose([KL_loss_t, KL_loss_v]), delimiter = ",")
 
 else:
     VAE.load_state_dict(torch.load("./saved_models/model_lamda_complex_4.pth"))
