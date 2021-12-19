@@ -190,74 +190,87 @@ l1 = 512
 l2 = 512
 l3 = 512
 
-latent_dimensions = 4
 n = 8
 lamda_seq = np.logspace(-6, 1, n)
 
-VAE = VariationalAutoencoder(latent_dimensions).to(device)
-learning_rate = 0.0001
-optimizer = optim.Adam(VAE.parameters(), lr=learning_rate)
+for latent_dimensions in [2, 4, 8]:
+
+    VAE = VariationalAutoencoder(latent_dimensions).to(device)
+    learning_rate = 0.0001
+    optimizer = optim.Adam(VAE.parameters(), lr=learning_rate)
 
 
-Recon_loss_t = np.zeros(n)
-KL_loss_t = np.zeros(n)
+    Recon_loss_t = np.zeros(n)
+    KL_loss_t = np.zeros(n)
 
-Recon_loss_v = np.zeros(n)
-KL_loss_v = np.zeros(n)
+    Recon_loss_v = np.zeros(n)
+    KL_loss_v = np.zeros(n)
 
-retrain = input("Retrain the model? (y/n)\n")
+    print("--------------------------")
+    print("Latent dimensions = ", latent_dimensions)
+    print("--------------------------\n")
 
-if (not os.path.isfile("./Models_sigmoid/VAE-512_0.pth")) or retrain == "y":
-    num_epochs = 50
+    retrain = input("Retrain the model? (y/n)\n")
 
-    for i in range(n):
-        lamda = lamda_seq[i]
-        for epoch in range(num_epochs):
-            train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
-            val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
-            torch.save(VAE.state_dict(), "./Models_sigmoid/VAE-{}-{}-{}_{}.pth".format(l1, l2, l3, i))
+    if retrain == "y":
+        if not os.path.isdir("./Models_test"):
+            os.mkdir("./Models_test")
+        if not os.path.isdir("./Loss_txt"):
+            os.mkdir("./Loss_txt")
+        if not os.path.isdir("./Figures"):
+            os.mkdir("./Figures")
 
+    if (not os.path.isfile("./Models_test/VAE-{}-{}-{}-{}_0.pth".format(latent_dimensions, l1, l2, l3))) or retrain == "y":
+        num_epochs = 25
 
-        print('\n lamda = {} \t train loss {:.3f} \t val loss {:.3f} '.format(lamda,train_loss,val_loss))
-        print(' lamda = {} \t MSE train {:.3f} \t KL train {:.3f} '.format(lamda,MSE_t, KL_t))
-        print(' lamda = {} \t MSE val {:.3f} \t KL val {:.3f} '.format(lamda,MSE_v, KL_v))
-
-        Recon_loss_t[i] = MSE_t
-        KL_loss_t[i] = KL_t
-
-        Recon_loss_v[i] = MSE_v
-        KL_loss_v[i] = KL_v
-
-    np.savetxt("Loss_txt/Recon_loss_{}-{}-{}_sigmoid.txt".format(l1, l2, l3), np.transpose([Recon_loss_t, Recon_loss_v, KL_loss_t, KL_loss_v]), fmt = "%1.5f", delimiter = ", ")
-
-
-    plt.figure(figsize = (10,8))
-    plt.subplot(1,2,1)
-    plt.plot(lamda_seq, KL_loss_t, label = "KL for training data")
-    plt.plot(lamda_seq, KL_loss_v, label = "KL for validation data")
-    plt.xscale("log")
-    plt.legend()
-    plt.grid()
-
-    plt.subplot(1, 2, 2)
-    plt.plot(lamda_seq, Recon_loss_t, label = "Reconstruction loss training data")
-    plt.plot(lamda_seq, Recon_loss_v, label = "Reconstruction loss validation data")
-    plt.xscale("log")
-    plt.legend()
-    plt.grid()
-
-    plt.savefig("Figures/Loss_sigmoid_{}-{}-{}.png".format(l1, l2, l3))
-    plt.show()
-
-else:
-    VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}-{}-{}_0.pth".format(l1, l2, l3)))
+        for i in range(n):
+            lamda = lamda_seq[i]
+            for epoch in range(num_epochs):
+                train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
+                val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
+                torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, l3, i))
 
 
+            print('\n lamda = {} \t train loss {:.3f} \t val loss {:.3f} '.format(lamda,train_loss,val_loss))
+            print(' lamda = {} \t MSE train {:.3f} \t KL train {:.3f} '.format(lamda,MSE_t, KL_t))
+            print(' lamda = {} \t MSE val {:.3f} \t KL val {:.3f} '.format(lamda,MSE_v, KL_v))
 
-# In[47]:
+            Recon_loss_t[i] = MSE_t
+            KL_loss_t[i] = KL_t
+
+            Recon_loss_v[i] = MSE_v
+            KL_loss_v[i] = KL_v
+
+        np.savetxt("Loss_txt/Recon_loss_{}-{}-{}-{}_sigmoid.txt".format(latent_dimensions, l1, l2, l3), np.transpose([Recon_loss_t, Recon_loss_v, KL_loss_t, KL_loss_v]), fmt = "%1.5f", delimiter = ", ")
 
 
-VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}-{}-{}_5.pth".format(l1, l2, l3)))
+        plt.figure(figsize = (10,8))
+        plt.subplot(1,2,1)
+        plt.plot(lamda_seq, KL_loss_t, label = "KL for training data")
+        plt.plot(lamda_seq, KL_loss_v, label = "KL for validation data")
+        plt.xscale("log")
+        plt.legend()
+        plt.grid()
+
+        plt.subplot(1, 2, 2)
+        plt.plot(lamda_seq, Recon_loss_t, label = "Reconstruction loss training data")
+        plt.plot(lamda_seq, Recon_loss_v, label = "Reconstruction loss validation data")
+        plt.xscale("log")
+        plt.legend()
+        plt.grid()
+
+        plt.savefig("Figures/Loss_sigmoid_{}-{}-{}.png".format(l1, l2, l3))
+        plt.show()
+
+    else:
+        VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}-{}_0.pth".format(latent_dimensions, l1, l2, l3)))
+
+
+
+    # In[47]:
+
+
+    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}-{}_5.pth".format(latent_dimensions, l1, l2, l3)))
 
 
 # In[53]:
@@ -298,6 +311,7 @@ def plot_latent(autoencoder, data, num_batches=100):
         if i > num_batches:
             plt.colorbar()
             break
+    plt.show()
 
 plot_latent(VAE, train_loader)
 
@@ -354,3 +368,30 @@ if edit_number == "y":
     #button = Button(resetax, 'Reset', hovercolor='0.975')
 
     plt.show()
+
+
+def get_z(X, Y):
+    data = np.loadtxt("Loss_txt/Recon_loss_{}-{}-{}-{}_sigmoid.txt".format(X, l1, l2, l3), usecols=1, delimiter = ", ")
+    index = int(np.log10(Y)+6)
+    return data[index]
+
+def surface_plot():
+    Y, X = lamda_seq, [2, 4, 8]
+    Z = np.zeros((len(X), len(Y)))
+
+    count = 0
+    for x in [2, 4, 8]:
+        for y in lamda_seq:
+            Z[count // len(Y), count % len(Y)] = get_z(x, y)
+            count += 1
+    X = np.transpose(np.tile(X, (len(Y), 1)))
+    Y = np.log10(np.tile(Y, (len(X), 1)))
+    ax = plt.axes(projection="3d")
+    ax.plot_wireframe(X, Y, Z, rstride=1, cstride=0)
+    ax.set_xlabel("Latent Dimensions")
+    ax.set_ylabel("Lambda (log)")
+    ax.set_zlabel("Reconstruction error")
+    plt.show()
+
+surface_plot()
+
