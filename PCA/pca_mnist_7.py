@@ -1,0 +1,109 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Dec 19 14:57:27 2021
+
+@author: jobre
+"""
+
+from sklearn.datasets import fetch_openml
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from matplotlib import pyplot as plt
+import numpy as np
+from matplotlib.widgets import Slider, Button
+
+#%% Slider tool
+def reconstruct(latent_var):
+    rec = scaler.inverse_transform(pca.inverse_transform(latent_var))
+    rec = np.reshape(rec,(28,28))
+    return rec;
+    
+
+def update_plot(val):
+        z_arr = np.array([z1_slider.val, z2_slider.val, z3_slider.val, z4_slider.val], dtype=np.single)
+        plot.set_data(reconstruct(z_arr))
+        fig.canvas.draw_idle()
+
+#%%
+# Optional way to get mnist, but now it's type is tuple
+from keras.datasets import mnist
+(train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+train_filter = np.where(train_y == 7)
+test_filter = np.where(test_y == 7)
+
+train_X, train_y = train_X[train_filter], train_y[train_filter]
+test_X, test_y = test_X[test_filter], test_y[test_filter]
+
+
+train_X = np.reshape(train_X,(train_X.shape[0],784))
+test_X = np.reshape(test_X,(test_X.shape[0],784))
+
+scaler = StandardScaler()
+
+scaler.fit(train_X)
+
+#standardize data
+data = scaler.transform(train_X)
+
+N, D = data.shape
+mu = np.mean(data,axis=0)
+desired_dim = 4
+
+
+#%%
+
+#preserve orginial values train_img for plot later:
+plottable = np.reshape(train_X,(N,28,28))
+labels = train_y
+
+
+# Determine how much variance the pc should describe and apply pca:
+pca = PCA(n_components=desired_dim)
+pca.fit(data)
+latent = pca.transform(data)
+
+print("dimensionality in latent space:", latent.shape)
+
+# reconstructing the feature space with latent space:
+recon = pca.inverse_transform(latent)
+recon = scaler.inverse_transform(recon)
+rec_plottable = np.reshape(recon,(N,28,28))
+
+#%% plotting the principal components
+pc = pca.components_
+pc_plottable = np.reshape(pc,(desired_dim,28,28))
+
+fig, axs = plt.subplots(1,desired_dim)
+
+for i in range(desired_dim):
+    axs[i].imshow(pc_plottable[i], cmap=plt.get_cmap('gray'))
+
+plt.show()
+    
+
+
+#%% plotting a few examples:
+for i in range(9):  
+    plt.subplot(1,2,1)
+    plt.title(labels[i])
+    plt.imshow(plottable[i], cmap = plt.get_cmap('gray'))
+    plt.subplot(1,2,2)
+    plt.imshow(rec_plottable[i], cmap=plt.get_cmap('gray'))
+    plt.title("reconstruction")
+    plt.show()
+    
+    
+#%%
+fig, axs = plt.subplots(2,4)
+z = latent[100]
+add= np.array([4,0,0,0])
+for i in range(desired_dim):
+    z = z + i * add
+    axs[0,i].imshow(pc_plottable[i],cmap='gist_gray')
+    axs[1,i].imshow(reconstruct(z),cmap='gist_gray')
+    
+
+plt.show()
