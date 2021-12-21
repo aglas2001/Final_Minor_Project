@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 21 19:14:19 2021
+Created on Tue Dec 21 23:12:38 2021
 
 @author: jobre
 """
@@ -22,7 +22,7 @@ class DisplacementDataset(Dataset):
     def __init__(self, data_folder):
         file_count = len(listdir(data_folder))
 
-        displacement_matrix = np.zeros((file_count, 1034*2))
+        displacement_matrix = np.zeros((file_count, 1636*2))
 
         def order(input):
             return int(input.strip("para_.txt"))
@@ -53,7 +53,7 @@ def load_all_data(address):
 
     folder_names = next(walk(address), (None, None, []))[1]
     total_file_count = sum([len(files) for r, d, files in walk(address)])
-    num_disp = 1034*2
+    num_disp = 1636*2
     
     all_data = np.zeros((total_file_count,num_disp))
     count = 0
@@ -128,47 +128,46 @@ def GetPointsAndCells():
     return points, cells
 
 def create_vtu(para,file_name): 
-    Disp = np.reshape(para,(1034,2))
+    Disp = np.reshape(para,(1634/2,2))
     point_data = {"Displacement":Disp}
     MakeVTUFile(points,cells,point_data, {}, file_name)
 
 #%% load data and apply pca
-all_data = load_all_data("../DataSet/Data_nonlinear/")
+all_data = load_all_data("../DataSet/Data_linear/")
 
 # not really used but could be useful for searching
-folder_names = next(walk("../DataSet/Data_nonlinear/"), (None, None, []))[1]
+folder_names = next(walk("../DataSet/Data_linear/"), (None, None, []))[1]
 
 #split data in train and test sample
-train, test = np.split(all_data,[40020])
+train, test = np.split(all_data,[900])
 
 # desired dimentionality in latent space
-desired_dim = 4
+desired_dim = 3
 
 pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 
 #%% get point and cell data from an existing FEM solution
-filenameRead  = "../DataSet/rve_test/para_1.vtu"
+filenameRead  = "../DataSet/rveLinearMultiple/para_1.vtu"
 points, cells, _ = ReadVTU(filenameRead)
 
 #%% make new VTU files
 
-rec_para, true_para = get_para(0,0)
-create_vtu(rec_para,"vtu_files/reconstructed_para.vtu")
-create_vtu(true_para, "vtu_files/true_para.vtu")
+# rec_para, true_para = get_para(0,0)
+# create_vtu(rec_para,"vtu_files/reconstructed_lin_para.vtu")
+# create_vtu(true_para, "vtu_files/true_lin_para.vtu")
 
-for i in range (desired_dim):
-    create_vtu(pc[i],"pc_"+str(i+1)+".vtu")
+# for i in range (desired_dim):
+#     create_vtu(pc[i],"pc_"+str(i+1)+".vtu")
     
 #%% make 50 VTU files for gif
 
-for i in range(50):
-    rec_para, true_para = get_para(0,i)
-    if (i<9):
-        create_vtu(rec_para,"vtu_files/reconstructed_paras/para_0"+str(i+1)+".vtu")
-        create_vtu(true_para,"vtu_files/true_paras/para_0"+str(i+1)+".vtu")
-    else:
-        create_vtu(rec_para,"vtu_files/reconstructed_paras/para_"+str(i+1)+".vtu")
-        create_vtu(true_para,"vtu_files/true_paras/para_"+str(i+1)+".vtu")
+# for i in range(50):
+#     rec_para, true_para = get_para(0,i)
+#     create_vtu(rec_para,"vtu_files/reconstructed_paras_lin/para_"+str(i+1)+".vtu")
+#     create_vtu(true_para,"vtu_files/true_paras_lin/para_"+str(i+1)+".vtu")
 
 
 
+rec_para, true_para = get_para(0,0)
+create_vtu(rec_para,"rec_lin_para")
+create_vtu(true_para,"true_lin_para")
