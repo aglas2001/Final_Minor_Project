@@ -81,23 +81,48 @@ scaler = StandardScaler()
 
 scaler.fit(all_data)
 
+train, test = np.split(all_data,[40000])
+
 #standardize data
-std_data = scaler.transform(all_data)
+std_data = scaler.transform(train)
+std_test = scaler.transform(test)
 
 N, D = std_data.shape
-mu = np.mean(std_data,axis=0)
-desired_dim = 10
+desired_dim = 4
 
 #%% apply pca
 pca = PCA(n_components=desired_dim)
 pca.fit(std_data)
-latent = pca.transform(std_data)
+latent = pca.transform(std_test)
 
 #%% reconstuction
 
 rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
 
-mean_squared_error(all_data, rec_data)
+mean_squared_error(test,rec_data)
 
 # plt.imshow(rec_data[0,:])
+
+
+#%% plot reconstruction error for multiple latent dimensionalities
+
+mse = np.zeros(13)
+for i in range(13):
+    pca = PCA(n_components=i+1)
+    pca.fit(std_data)
+    lat = pca.transform(std_test)
+    rec = scaler.inverse_transform(pca.inverse_transform(lat))
+    mse[i] = mean_squared_error(test,rec)
+
+
+plt.plot(mse)
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error (MSE)")
+plt.xlim([1,12])
+
+
+#%%
+
+test_para = rec_data[0:50]
+
 

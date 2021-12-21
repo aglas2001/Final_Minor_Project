@@ -140,6 +140,22 @@ for i in range(desired_dim):
 
 plt.show()
 
+#%% plot reconstruction error for different latent dimensionalities
 
+# Determine how much variance the pc should describe and apply pca:
 
+    
+mse = np.zeros(13)
+for i in range(13):
+    pca = PCA(n_components=i+1)
+    pca.fit(train_data)
+    lat = pca.transform(test_data)
+    rec = scaler.inverse_transform(pca.inverse_transform(lat))
+    mse[i] = mean_squared_error(test_X,rec)
+    
+plt.plot(mse)
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error (MSE)")
+plt.xlim([1,12])
+    
 
