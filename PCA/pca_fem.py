@@ -13,6 +13,7 @@ from os.path import isfile, join
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
+from matplotlib import pyplot as plt
 
 
 #Custom Dataset loader for our displacment data
@@ -65,8 +66,8 @@ all_data = np.zeros((total_file_count,num_disp))
 count = 0
 
 for i in range(len(folder_names)):
-    temp = DisplacementDataset("../DataSet/Data_nonlinear/"+folder_names[i]).displacements
-    num_files = [len(files) for r, d, files in walk("../DataSet/Data_nonlinear/"+folder_names[i])][0]
+    temp = DisplacementDataset(address+folder_names[i]).displacements
+    num_files = [len(files) for r, d, files in walk(address+folder_names[i])][0]
     
     for j in range(num_files):
         all_data[count] = temp[j,:]   
@@ -97,4 +98,6 @@ latent = pca.transform(std_data)
 rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
 
 mean_squared_error(all_data, rec_data)
+
+# plt.imshow(rec_data[0,:])
 

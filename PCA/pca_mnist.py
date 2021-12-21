@@ -8,11 +8,10 @@ Created on Thu Nov 18 09:25:00 2021
 from sklearn.datasets import fetch_openml
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.widgets import Slider, Button
+from sklearn.metrics import mean_squared_error
 
 #%% Slider tool
 def reconstruct(latent_var):
@@ -26,60 +25,62 @@ def update_plot(val):
         plot.set_data(reconstruct(z_arr))
         fig.canvas.draw_idle()
 
-# Optional way to get mnist, but now it's type is tuple
-# from keras.datasets import mnist
-# (train_X, train_y), (test_X, test_y) = mnist.load_data()
-
 
 #%% importing dataset, takes a while...
-mnist_dataset = fetch_openml('mnist_784')
+#mnist_dataset = fetch_openml('mnist_784')
 
-#%% prepare data
-mnist = mnist_dataset.data.to_numpy()
+from keras.datasets import mnist
+(train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+train_X = np.reshape(train_X,(train_X.shape[0],784))
+test_X = np.reshape(test_X,(test_X.shape[0],784))
 
 scaler = StandardScaler()
 
-scaler.fit(mnist)
+scaler.fit(train_X)
 
 #standardize data
-data = scaler.transform(mnist)
+train_data = scaler.transform(train_X)
+test_data = scaler.transform(test_X)
 
-N, D = data.shape
-mu = np.mean(data,axis=0)
+N, D = train_data.shape
+mu = np.mean(train_data,axis=0)
 desired_dim = 4
+
 #%%
 
-#preserve orginial values train_img for plot later:
-plottable = np.reshape(mnist,(N,28,28))
-labels = mnist_dataset.target.array
+#preserve orginial values test_X for plot later:
+plottable = np.reshape(test_X,(test_X.shape[0],28,28))
+labels = test_y
 
 
 # Determine how much variance the pc should describe and apply pca:
 pca = PCA(n_components=desired_dim)
-pca.fit(data)
-latent = pca.transform(data)
+pca.fit(train_data)
+latent = pca.transform(test_data)
 
 print("dimensionality in latent space:", latent.shape)
 
 # reconstructing the feature space with latent space:
-recon = pca.inverse_transform(latent)
-recon = scaler.inverse_transform(recon)
-rec_plottable = np.reshape(recon,(N,28,28))
+recon = scaler.inverse_transform(pca.inverse_transform(latent))
+rec_plottable = np.reshape(recon,(recon.shape[0],28,28))
 
 #%% plotting the principal components
+
 pc = pca.components_
 pc_plottable = np.reshape(pc,(desired_dim,28,28))
 
+fig, axs = plt.subplots(1,desired_dim)
+
 for i in range(desired_dim):
-    plt.subplot(1,2,2)
-    plt.imshow(pc_plottable[i], cmap=plt.get_cmap('gray'))
-    plt.title("principal component ")
-    plt.show()
+    axs[i].imshow(pc_plottable[i], cmap=plt.get_cmap('gray'))
+
+plt.show()
     
 
 
 #%% plotting a few examples:
-for i in range(9):  
+for i in range(23,43):  
     plt.subplot(1,2,1)
     plt.title(labels[i])
     plt.imshow(plottable[i], cmap = plt.get_cmap('gray'))
@@ -131,11 +132,10 @@ z4_slider.on_changed(update_plot)
 #%% see influence of latent space:
     
 fig, axs = plt.subplots(1,4)
-z = latent[1]
-add= np.array([0,0,0,1])
+z = latent[0]
+add= np.array([0,-7,0,0])
 for i in range(desired_dim):
-    z = z + i * add
-    axs[i].imshow(reconstruct(z),cmap='gist_gray')
+    axs[i].imshow(reconstruct(z + i * add),cmap='gist_gray')
     
 
 plt.show()
