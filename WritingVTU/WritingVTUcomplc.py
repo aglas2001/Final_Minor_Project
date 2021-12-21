@@ -13,7 +13,8 @@ def DeleteFile(filename):
 
 
 
-def MakeVTUFile(points,cells,PointData, CellData,filename):
+def MakeVTUFile(points,cells,PointData, CellData,filename): 
+    ## points and cells are arrays, Point Data is a dictionary
 
     mesh = meshio.Mesh(
         points,
