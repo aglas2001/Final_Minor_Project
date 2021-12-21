@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec 15 12:59:25 2021
+Created on Tue Dec 21 19:14:19 2021
 
 @author: jobre
 """
@@ -14,7 +14,6 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
-
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
@@ -46,15 +45,7 @@ class DisplacementDataset(Dataset):
     
         return displacement_x, displacement_y
 
-#An example data loader using the custom dataset class
-#training_data = DisplacementDataset("../test_data/para_1.txt")
-#train_dataloader = DataLoader(training_data, batch_size=64, shuffle=False)
 
-#train_displacements_x, train_displacements_y, train_displacements_z = next(iter(train_dataloader))
-#print(f"Displacements batch shape: {train_displacements_x.size()}")
-#print(f"Label: {train_displacements_y}")
-
-#%% load data, takes a while
 
 def load_all_data(address):
 
@@ -75,68 +66,42 @@ def load_all_data(address):
             
     return all_data
 
+def apply_pca(train, test, desired_dim):
+    
+    scaler = StandardScaler()
+    scaler.fit(train)
+    
+    #standardize data
+    std_data = scaler.transform(train)
+    std_test = scaler.transform(test)
+    
+    pca = PCA(n_components=desired_dim)
+    pca.fit(std_data)
+    pc = pca.components_
+    latent = pca.transform(std_test)
+    rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
+    
+    return pc, latent, rec_data
+
+
+def get_para(bcs,para):
+    rec_para = reconstruction[bcs*50:((bcs+1)*50)][para]
+    true_para = test[bcs*50:((bcs+1)*50)][para]
+    return rec_para, true_para
+    
+
+#%%
 all_data = load_all_data("../DataSet/Data_nonlinear/")
 
-
-# print("../DataSet/Data_nonlinear/"+folder_names[1])
-
-#%% standardize data and set parameters
-scaler = StandardScaler()
-
-scaler.fit(all_data)
-
 train, test = np.split(all_data,[40000])
-
-#standardize data
-std_data = scaler.transform(train)
-std_test = scaler.transform(test)
-
-N, D = std_data.shape
 desired_dim = 4
 
-#%% apply pca
-pca = PCA(n_components=desired_dim)
-pca.fit(std_data)
-latent = pca.transform(std_test)
-
-#%% reconstuction
-
-rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
-
-mean_squared_error(test,rec_data)
-
-# plt.imshow(rec_data[0,:])
-
-
-#%% plot reconstruction error for multiple latent dimensionalities
-
-mse = np.zeros(13)
-for i in range(13):
-    pca = PCA(n_components=i+1)
-    pca.fit(std_data)
-    lat = pca.transform(std_test)
-    rec = scaler.inverse_transform(pca.inverse_transform(lat))
-    mse[i] = mean_squared_error(test,rec)
-
-
-plt.plot(mse)
-plt.xlabel("Dimensionality of latent space")
-plt.ylabel("Reconstruction error (MSE)")
-plt.xlim([1,12])
-
-
-#%%
-
-one_para = rec_data[0:50][0]
-
-plt.scatter(one_para[:1034], one_para[1034:])
+pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 
 
 
-real_one_para = test[0:50][0]
 
-plt.scatter(real_one_para[:1034], real_one_para[1034:])
 
-#%%
-dif = one_para - real_one_para
 
+
+folder_names = next(walk("../DataSet/Data_nonlinear/"), (None, None, []))[1]

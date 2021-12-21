@@ -26,11 +26,11 @@ def ShowParaview(filename,repren):
 
 
 
-filename0 = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
+filename0 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
 
-filename1 = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/WritingVTU/RveTestPara1Remade.vtu"
+filename1 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/WritingVTU/RveTestPara1Remade.vtu"
 
-filename2 = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/WritingVTU/RveTestPara1Remade2.vtu"
+filename2 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/WritingVTU/RveTestPara1Remade2.vtu"
 
 
 ShowParaview(filename2,'Surface')
