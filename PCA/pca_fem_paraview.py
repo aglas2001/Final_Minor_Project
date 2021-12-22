@@ -16,6 +16,8 @@ from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
 import meshio
 import os
+import random
+
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
@@ -52,13 +54,16 @@ class DisplacementDataset(Dataset):
 def load_all_data(address):
 
     folder_names = next(walk(address), (None, None, []))[1]
+    random.shuffle(folder_names)
     total_file_count = sum([len(files) for r, d, files in walk(address)])
     num_disp = 1034*2
     
     all_data = np.zeros((total_file_count,num_disp))
+    start = []
     count = 0
     
     for i in range(len(folder_names)):
+        start.append(int(count))
         temp = DisplacementDataset(address+folder_names[i]).displacements
         num_files = temp.shape[0]
         
@@ -66,7 +71,7 @@ def load_all_data(address):
             all_data[count] = temp[j,:]   
             count += 1
             
-    return all_data
+    return all_data, folder_names, start
 
 def apply_pca(train, test, desired_dim):
     
@@ -86,11 +91,27 @@ def apply_pca(train, test, desired_dim):
     return pc, latent, rec_data
 
 
-def get_para(bcs,para):
-    rec_para = reconstruction[bcs*50:((bcs+1)*50)][para]
-    true_para = test[bcs*50:((bcs+1)*50)][para]
+def get_para(start,para):
+    rec_para = reconstruction[start+para]
+    true_para = test[start+para]
     return rec_para, true_para
 
+#start is first position in reconstruction and test!
+def get_all_paras(start,num_paras):
+    
+    rec_paras = np.zeros((num_paras,2*1034))
+    true_paras = np.zeros((num_paras,2*1034))
+    for i in range(num_paras):
+        rec_paras[i] = reconstruction[start+i]
+        true_paras[i] = test[start+i]
+        
+    rec = np.zeros((rec_paras.shape[0],rec_paras.shape[1]+1))
+    rec[:,:-1] = rec_paras
+    
+    true = np.zeros((true_paras.shape[0],true_paras.shape[1]+1))
+    true[:,:-1] = true_paras
+
+    return rec, true
     
 def DeleteFile(filename):
     try:
@@ -129,18 +150,20 @@ def GetPointsAndCells():
 
 def create_vtu(para,file_name): 
     Disp = np.reshape(para,(1034,2))
-    point_data = {"Displacement":Disp}
+    Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
+    Disp_xyz[:,:-1] = Disp
+    point_data = {"Displacement":Disp_xyz}    
     MakeVTUFile(points,cells,point_data, {}, file_name)
 
 #%% load data and apply pca
-all_data = load_all_data("../DataSet/Data_nonlinear/")
-
-# not really used but could be useful for searching
-folder_names = next(walk("../DataSet/Data_nonlinear/"), (None, None, []))[1]
+all_data, folder_names, start = load_all_data("../DataSet/Data_nonlinear/")
 
 #split data in train and test sample
-train, test = np.split(all_data,[40020])
+split_point = start[950]
+test_names = folder_names[950:]
+train, test = np.split(all_data,[split_point])
 
+#%%
 # desired dimentionality in latent space
 desired_dim = 4
 
@@ -151,24 +174,31 @@ filenameRead  = "../DataSet/rve_test/para_1.vtu"
 points, cells, _ = ReadVTU(filenameRead)
 
 #%% make new VTU files
+# bcs = 0
 
-rec_para, true_para = get_para(0,0)
-create_vtu(rec_para,"vtu_files/reconstructed_para.vtu")
-create_vtu(true_para, "vtu_files/true_para.vtu")
+# rec_para, true_para = get_para(bcs,0)
+# create_vtu(rec_para,"vtu_files/reconstructed_para.vtu")
+# create_vtu(true_para, "vtu_files/true_para.vtu")
 
 for i in range (desired_dim):
     create_vtu(pc[i],"pc_"+str(i+1)+".vtu")
     
 #%% make 50 VTU files for gif
 
-for i in range(50):
-    rec_para, true_para = get_para(0,i)
-    if (i<9):
-        create_vtu(rec_para,"vtu_files/reconstructed_paras/para_0"+str(i+1)+".vtu")
-        create_vtu(true_para,"vtu_files/true_paras/para_0"+str(i+1)+".vtu")
-    else:
-        create_vtu(rec_para,"vtu_files/reconstructed_paras/para_"+str(i+1)+".vtu")
-        create_vtu(true_para,"vtu_files/true_paras/para_"+str(i+1)+".vtu")
+bcs = 0
+
+print(test_names[bcs])
+num_para = start[951+bcs] - start[950+bcs]
+print(num_para)
+start_pos = start[950+bcs]-split_point
+print(start_pos)
+
+for i in range(num_para):
+    rec_para, true_para = get_para(start_pos,i)
+    create_vtu(rec_para,"vtu_files/reconstructed_paras/para_"+str(i+1)+".vtu")
+    create_vtu(true_para,"vtu_files/true_paras/para_"+str(i+1)+".vtu")
+    
+
 
 
 

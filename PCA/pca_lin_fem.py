@@ -16,6 +16,7 @@ from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
 import meshio
 import os
+import random
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
@@ -52,21 +53,26 @@ class DisplacementDataset(Dataset):
 def load_all_data(address):
 
     folder_names = next(walk(address), (None, None, []))[1]
+    random.shuffle(folder_names)
     total_file_count = sum([len(files) for r, d, files in walk(address)])
     num_disp = 1636*2
     
     all_data = np.zeros((total_file_count,num_disp))
+    start = np.zeros(len(folder_names))
     count = 0
     
     for i in range(len(folder_names)):
+        start[i] = count
         temp = DisplacementDataset(address+folder_names[i]).displacements
         num_files = temp.shape[0]
         
         for j in range(num_files):
             all_data[count] = temp[j,:]   
             count += 1
+        
+        
             
-    return all_data
+    return all_data, folder_names, start
 
 def apply_pca(train, test, desired_dim):
     
@@ -86,9 +92,9 @@ def apply_pca(train, test, desired_dim):
     return pc, latent, rec_data
 
 
-def get_para(bcs,para):
-    rec_para = reconstruction[bcs*50:((bcs+1)*50)][para]
-    true_para = test[bcs*50:((bcs+1)*50)][para]
+def get_para(bcs):
+    rec_para = reconstruction[bcs]
+    true_para = test[bcs]
     return rec_para, true_para
 
     
@@ -128,15 +134,12 @@ def GetPointsAndCells():
     return points, cells
 
 def create_vtu(para,file_name): 
-    Disp = np.reshape(para,(1634/2,2))
+    Disp = np.reshape(para,(1636,2))
     point_data = {"Displacement":Disp}
     MakeVTUFile(points,cells,point_data, {}, file_name)
 
 #%% load data and apply pca
-all_data = load_all_data("../DataSet/Data_linear/")
-
-# not really used but could be useful for searching
-folder_names = next(walk("../DataSet/Data_linear/"), (None, None, []))[1]
+all_data, folder_names, start = load_all_data("../DataSet/Data_linear/")
 
 #split data in train and test sample
 train, test = np.split(all_data,[900])
@@ -149,25 +152,19 @@ pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 #%% get point and cell data from an existing FEM solution
 filenameRead  = "../DataSet/rveLinearMultiple/para_1.vtu"
 points, cells, _ = ReadVTU(filenameRead)
-
-#%% make new VTU files
-
-# rec_para, true_para = get_para(0,0)
-# create_vtu(rec_para,"vtu_files/reconstructed_lin_para.vtu")
-# create_vtu(true_para, "vtu_files/true_lin_para.vtu")
-
-# for i in range (desired_dim):
-#     create_vtu(pc[i],"pc_"+str(i+1)+".vtu")
     
-#%% make 50 VTU files for gif
+#%% make new vtu files
 
-# for i in range(50):
-#     rec_para, true_para = get_para(0,i)
-#     create_vtu(rec_para,"vtu_files/reconstructed_paras_lin/para_"+str(i+1)+".vtu")
-#     create_vtu(true_para,"vtu_files/true_paras_lin/para_"+str(i+1)+".vtu")
+bcs = 28
 
+print(folder_names[900+bcs])
 
+rec_para, true_para = get_para(bcs)
+create_vtu(rec_para,"vtu_files/reconstructed_paras_lin/rec_"+str(folder_names[900+bcs])+".vtu")
+create_vtu(true_para,"vtu_files/true_paras_lin/true_"+str(folder_names[900+bcs])+".vtu")
 
-rec_para, true_para = get_para(0,0)
-create_vtu(rec_para,"rec_lin_para")
-create_vtu(true_para,"true_lin_para")
+#%% plot principal components
+
+for i in range(desired_dim):
+    create_vtu(pc[i],"vtu_files/lin_pc_"+str(i+1)+".vtu")
+
