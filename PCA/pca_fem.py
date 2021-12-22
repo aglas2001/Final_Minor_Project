@@ -55,23 +55,27 @@ class DisplacementDataset(Dataset):
 #print(f"Label: {train_displacements_y}")
 
 #%% load data, takes a while
-address = "../DataSet/Data_nonlinear/"
 
+def load_all_data(address):
 
-folder_names = next(walk(address), (None, None, []))[1]
-total_file_count = sum([len(files) for r, d, files in walk(address)])
-num_disp = 1034*2
-
-all_data = np.zeros((total_file_count,num_disp))
-count = 0
-
-for i in range(len(folder_names)):
-    temp = DisplacementDataset(address+folder_names[i]).displacements
-    num_files = [len(files) for r, d, files in walk(address+folder_names[i])][0]
+    folder_names = next(walk(address), (None, None, []))[1]
+    total_file_count = sum([len(files) for r, d, files in walk(address)])
+    num_disp = 1034*2
     
-    for j in range(num_files):
-        all_data[count] = temp[j,:]   
-        count += 1
+    all_data = np.zeros((total_file_count,num_disp))
+    count = 0
+    
+    for i in range(len(folder_names)):
+        temp = DisplacementDataset(address+folder_names[i]).displacements
+        num_files = [len(files) for r, d, files in walk(address+folder_names[i])][0]
+        
+        for j in range(num_files):
+            all_data[count] = temp[j,:]   
+            count += 1
+            
+    return all_data
+
+all_data = load_all_data("../DataSet/Data_nonlinear/")
 
 
 # print("../DataSet/Data_nonlinear/"+folder_names[1])
@@ -123,6 +127,16 @@ plt.xlim([1,12])
 
 #%%
 
-test_para = rec_data[0:50]
+one_para = rec_data[0:50][0]
 
+plt.scatter(one_para[:1034], one_para[1034:])
+
+
+
+real_one_para = test[0:50][0]
+
+plt.scatter(real_one_para[:1034], real_one_para[1034:])
+
+#%%
+dif = one_para - real_one_para
 

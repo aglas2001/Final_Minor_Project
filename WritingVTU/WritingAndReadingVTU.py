@@ -39,34 +39,39 @@ def ReadVTU(filename):
     return points, cells, PointData
 
 def GetPointsAndCells():
-    filename  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
+    filename  = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
     mesh = meshio.read(filename)
     points, cells = mesh.points, mesh.cells
     return points, cells
 
 
 
-filenameRead  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
+filenameRead  = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
 
 
 points, cells, PointData1 = ReadVTU(filenameRead)
 
 filenameWrite1 = "RveTestPara1Remade.vtu"
 
-filenameWrite2 = "RveTestPara1Remade2.vtu"
+filenameWrite2 = "Reconstruction_test_1.vtu"
 
 
 DeleteFile(filenameWrite1)
 MakeVTUFile(points,cells,PointData1, {}, filenameWrite1)
 
 
-Disp = PointData1["Displacement"]
+Disp = np.reshape(one_para,(1034,2))
 
 PointData2 = {"Displacement":Disp}
 
 
 MakeVTUFile(points,cells,PointData2, {}, filenameWrite2)
 
+
+Disp = np.reshape(real_one_para,(1034,2))
+
+PointData3 = {"Displacement":Disp}
+MakeVTUFile(points, cells, PointData3, {}, "real_test_1.vtu")
 
 
 
