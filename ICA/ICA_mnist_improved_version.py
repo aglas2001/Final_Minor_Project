@@ -9,13 +9,11 @@ from sklearn.datasets import fetch_openml
 from sklearn.decomposition import FastICA
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import mean_squared_error
 from matplotlib import pyplot as plt
-from matplotlib.widgets import Slider, Button
+from matplotlib.widgets import Slider
 import numpy as np
 import math as m
-from sklearn.decomposition import PCA
 import copy
 
 
@@ -195,11 +193,13 @@ def ShowComponents(AmountOfComponents, A):
 
 def ErrorDifferentDimens(S, L,scaler, train_img, test_img, N, OrignalPlot):
     mse = np.zeros(L-S)
+    ReconICAPlottable= []
     for i in range(L-S):
         print(S+i)
-        ica, SourceICA, ReconICAPlottable, A = ApplyICA(S+i, scaler, train_img, test_img, N)
-        PlotReconstructionOneNumber(7, OrignalPlot,ReconICAPlottable,Labels)
-        mse[i] = mean_squared_error(OrignalPlot.reshape(N,784),ReconICAPlottable.reshape(N,784))
+        ica, SourceICA, helperee , A = ApplyICA(S+i, scaler, train_img, test_img, N)
+        ReconICAPlottable.append(helperee)
+        # PlotReconstructionOneNumber(7, OrignalPlot,ReconICAPlottable,Labels)
+        mse[i] = mean_squared_error(OrignalPlot.reshape(N,784),ReconICAPlottable[i].reshape(N,784))
     
     plt.plot(mse)
     plt.xlabel("Dimensionality of latent space")
