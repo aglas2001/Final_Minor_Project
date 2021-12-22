@@ -121,26 +121,26 @@ for i in range(10):
      plt.title("ICA")
      plt.show()
 #%% Plotting from test
-print("Plotting Test")
-if True:
-    for i in range(20):
-        rmsePCA = m.sqrt(mean_squared_error(plottest[i], rec_pca_test_plottable[i]))
-        nrmsePCA = rmsePCA/m.sqrt(np.mean(plottest**2))
-        rmseICA = m.sqrt(mean_squared_error(plottest[i], rec_ica_test_plottable[i]))
-        nrmseICA = rmseICA/m.sqrt(np.mean(plottest**2))
+print("Reconstructing Test")
 
-        errorstringPCA = "Reconstruction Error for " + str(labelstest[i])+ " using PCA: "+ str(nrmsePCA)
-        errorstringICA = "Reconstruction Error for " + str(labelstest[i])+ " using ICA: "+ str(nrmseICA)
-        print(errorstringPCA)
-        print(errorstringICA)
-        titlestr = "Reconstructing " + str(labelstest[i])+ " using ICA"
-        fig, axs = plt.subplots(1, 2)
-        fig.suptitle(titlestr, fontsize=16)
-        axs[0].imshow(plottest[i], cmap = plt.get_cmap('gray'))
-        axs[0].set_title(labelstest[i])
+for i in range(20):
+    rmsePCA = m.sqrt(mean_squared_error(plottest[i], rec_pca_test_plottable[i]))
+    nrmsePCA = rmsePCA/m.sqrt(np.mean(plottest**2))
+    rmseICA = m.sqrt(mean_squared_error(plottest[i], rec_ica_test_plottable[i]))
+    nrmseICA = rmseICA/m.sqrt(np.mean(plottest**2))
+
+    errorstringPCA = "Reconstruction Error for " + str(labelstest[i])+ " using PCA: "+ str(nrmsePCA)
+    errorstringICA = "Reconstruction Error for " + str(labelstest[i])+ " using ICA: "+ str(nrmseICA)
+    print(errorstringPCA)
+    print(errorstringICA)
+    titlestr = "Reconstructing " + str(labelstest[i])+ " using ICA"
+    fig, axs = plt.subplots(1, 2)
+    fig.suptitle(titlestr, fontsize=16)
+    axs[0].imshow(plottest[i], cmap = plt.get_cmap('gray'))
+    axs[0].set_title(labelstest[i])
         
-        axs[1].imshow(rec_ica_test_plottable[i], cmap=plt.get_cmap('gray'))
-        axs[1].set_title("ICA recon")
+    axs[1].imshow(rec_ica_test_plottable[i], cmap=plt.get_cmap('gray'))
+    axs[1].set_title("ICA recon")
      
 
 #%% Trying to find what components do
