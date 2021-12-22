@@ -13,6 +13,7 @@ from os.path import isfile, join
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error
+from matplotlib import pyplot as plt
 
 
 #Custom Dataset loader for our displacment data
@@ -54,23 +55,27 @@ class DisplacementDataset(Dataset):
 #print(f"Label: {train_displacements_y}")
 
 #%% load data, takes a while
-address = "../DataSet/Data_nonlinear/"
 
+def load_all_data(address):
 
-folder_names = next(walk(address), (None, None, []))[1]
-total_file_count = sum([len(files) for r, d, files in walk(address)])
-num_disp = 1034*2
-
-all_data = np.zeros((total_file_count,num_disp))
-count = 0
-
-for i in range(len(folder_names)):
-    temp = DisplacementDataset("../DataSet/Data_nonlinear/"+folder_names[i]).displacements
-    num_files = [len(files) for r, d, files in walk("../DataSet/Data_nonlinear/"+folder_names[i])][0]
+    folder_names = next(walk(address), (None, None, []))[1]
+    total_file_count = sum([len(files) for r, d, files in walk(address)])
+    num_disp = 1034*2
     
-    for j in range(num_files):
-        all_data[count] = temp[j,:]   
-        count += 1
+    all_data = np.zeros((total_file_count,num_disp))
+    count = 0
+    
+    for i in range(len(folder_names)):
+        temp = DisplacementDataset(address+folder_names[i]).displacements
+        num_files = [len(files) for r, d, files in walk(address+folder_names[i])][0]
+        
+        for j in range(num_files):
+            all_data[count] = temp[j,:]   
+            count += 1
+            
+    return all_data
+
+all_data = load_all_data("../DataSet/Data_nonlinear/")
 
 
 # print("../DataSet/Data_nonlinear/"+folder_names[1])
@@ -80,21 +85,58 @@ scaler = StandardScaler()
 
 scaler.fit(all_data)
 
+train, test = np.split(all_data,[40000])
+
 #standardize data
-std_data = scaler.transform(all_data)
+std_data = scaler.transform(train)
+std_test = scaler.transform(test)
 
 N, D = std_data.shape
-mu = np.mean(std_data,axis=0)
-desired_dim = 10
+desired_dim = 4
 
 #%% apply pca
 pca = PCA(n_components=desired_dim)
 pca.fit(std_data)
-latent = pca.transform(std_data)
+latent = pca.transform(std_test)
 
 #%% reconstuction
 
 rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
 
-mean_squared_error(all_data, rec_data)
+mean_squared_error(test,rec_data)
+
+# plt.imshow(rec_data[0,:])
+
+
+#%% plot reconstruction error for multiple latent dimensionalities
+
+mse = np.zeros(13)
+for i in range(13):
+    pca = PCA(n_components=i+1)
+    pca.fit(std_data)
+    lat = pca.transform(std_test)
+    rec = scaler.inverse_transform(pca.inverse_transform(lat))
+    mse[i] = mean_squared_error(test,rec)
+
+
+plt.plot(mse)
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error (MSE)")
+plt.xlim([1,12])
+
+
+#%%
+
+one_para = rec_data[0:50][0]
+
+plt.scatter(one_para[:1034], one_para[1034:])
+
+
+
+real_one_para = test[0:50][0]
+
+plt.scatter(real_one_para[:1034], real_one_para[1034:])
+
+#%%
+dif = one_para - real_one_para
 

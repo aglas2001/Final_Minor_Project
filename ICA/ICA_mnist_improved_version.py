@@ -38,6 +38,30 @@ def loaddata(mnist_dataset):
     labels = mnist_dataset.target.array
     return data, scaler, N, D, mu,labels,plottable
 
+def loaddatasplit(mnist_dataset):
+    mnist = mnist_dataset.data.to_numpy()
+
+    # test_size: what proportion of original data is used for test set
+    train_img, test_img, train_lbl, test_lbl = train_test_split(
+        mnist.data, mnist.target, test_size=1/7.0, random_state=0)
+
+    #preserve orginial values train_img for plot later:
+    plottable = np.reshape(train_img.to_numpy(),(60000,28,28))
+    labels = train_lbl.array
+
+    plottest = np.reshape(test_img.to_numpy(),(10000,28,28))
+    labelstest = test_lbl.array
+
+    # Fit on training set only. Computes the mean and std to be used for later scaling.
+    scaler = StandardScaler()
+    scaler.fit(train_img)
+
+    # Applies standardization to both the training set and the test set.
+    return train_img,test_img,plottable,labels,plottest,labelstest,scaler
+
+
+
+
 
 def ApplyPCA(desired_dim,scaler, data,N):
     pca = PCA(n_components=desired_dim)
@@ -68,6 +92,14 @@ def ApplyICA(desired_dim,scaler, data,N):
     return ica,train_imgica, recica_plottable, A
     
 
+def ReconstructionError(plottable,recpca_plottable,recica_plottable,labels):
+    rmsePCA = m.sqrt(mean_squared_error(plottable, recpca_plottable))
+    nrmsePCA = rmsePCA/m.sqrt(np.mean(plottable**2))
+    rmseICA = m.sqrt(mean_squared_error(plottable, recica_plottable))
+    nrmseICA = rmseICA/m.sqrt(np.mean(plottable**2))
+    #errorstringPCA = "Reconstruction Error for " + str(labels[i])+ " using PCA: "+ str(nrmsePCA)
+    #errorstringICA = "Reconstruction Error for " + str(labels[i])+ " using ICA: "+ str(nrmseICA)
+    return nrmsePCA,nrmseICA
 
 
 def PlotReconstruction(AmountOfPlots, plottable,recpca_plottable,recica_plottable,labels):
@@ -151,6 +183,8 @@ mnist_dataset = loadmnist()
 #%%
 data, scaler, N, D, mu,labels,plottable = loaddata(mnist_dataset)
 #%%
+train_img,test_img,plottable,labels,plottest,labelstest,scaler = loaddatasplit(mnist_dataset)
+#%%
 recpca_plottable = ApplyPCA(desired_dim,scaler, data,N)
 #%%
 ica,train_imgica, recica_plottable, A = ApplyICA(desired_dim,scaler, data,N)
@@ -158,6 +192,9 @@ ica,train_imgica, recica_plottable, A = ApplyICA(desired_dim,scaler, data,N)
 PlotReconstruction(1, plottable,recpca_plottable,recica_plottable,labels)
 #%%
 Plotcomponents(1, desired_dim,N, ica, A, scaler, train_imgica, labels, plottable,recica_plottable)
+
+#%%
+nrmsePCA,nrmseICA = ReconstructionError(plottable,recpca_plottable,recica_plottable,labels)
 
 
 
@@ -186,7 +223,7 @@ fig = plt.figure()
 plot = plt.imshow(recica_plottable[I], cmap=plt.get_cmap('gray'))
 plt.subplots_adjust(bottom=0.4)
 
-z_arr = train_imgica[I]
+z_arr = np.zeros(4)
 
 ax_z1 = plt.axes([0.25, 0.1, 0.65, 0.03])
 z1_slider = Slider(ax=ax_z1, label='Z1', valmin=-0.02, valmax=0.02, valinit=z_arr[0])
