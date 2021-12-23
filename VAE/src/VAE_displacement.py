@@ -36,7 +36,7 @@ training_data = DisplacementDataset(
 )
 
 validation_data = DisplacementDataset(
-   root="data_val",
+   data_folder="../../Dataset/Data_nonlinear/",
    train=False,
    ratio=0.2,
    seed=0
@@ -48,13 +48,13 @@ validation_data = DisplacementDataset(
 #validation_data.data, validation_data.targets = validation_data.data[label_indices_validation], validation_data.targets[label_indices_validation]
 
 # Create data loaders.
-train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=False)
 val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
 
 print(len(training_data))
 print(len(validation_data))
 
-checking_data, n_o_i = next(iter(train_loader))
+checking_data = next(iter(train_loader))
 print(f"Feature batch shape: {checking_data.size()}")
 
 
@@ -66,9 +66,9 @@ print(f"Feature batch shape: {checking_data.size()}")
 class VariationalEncoder(nn.Module):
     def __init__(self, latent_dims):
         super(VariationalEncoder, self).__init__()
-        self.linear1 = nn.Linear(2*1034, l1)
-        self.linear2 = nn.Linear(l1, l2)
-        self.linear3 = nn.Linear(l2, l3)
+        self.linear1 = nn.Linear(2*1034, l3)
+        #self.linear2 = nn.Linear(l1, l2)
+        #self.linear3 = nn.Linear(l2, l3)
         self.linear4 = nn.Linear(l3, latent_dimensions)
         self.linear5 = nn.Linear(l3, latent_dimensions)
 
@@ -79,8 +79,8 @@ class VariationalEncoder(nn.Module):
     def forward(self, x):
         x = torch.flatten(x, start_dim=1)
         x = torch.sigmoid(self.linear1(x))
-        x = torch.sigmoid(self.linear2(x))
-        x = torch.sigmoid(self.linear3(x))
+        #x = torch.sigmoid(self.linear2(x))
+        #x = torch.sigmoid(self.linear3(x))
 
         #reparametrization
         mu =  (self.linear4(x))
@@ -98,18 +98,18 @@ class Decoder(nn.Module):
     def __init__(self, latent_dims):
         super(Decoder, self).__init__()
         self.linear1 = nn.Linear(latent_dimensions, l3)
-        self.linear2 = nn.Linear(l3, l2)
-        self.linear3 = nn.Linear(l2, l1)
-        self.linear4 = nn.Linear(l1, 2*1034)
+        #self.linear2 = nn.Linear(l3, l2)
+        #self.linear3 = nn.Linear(l2, l1)
+        self.linear4 = nn.Linear(l3, 2*1034)
 
     def forward(self, z):
         z = torch.sigmoid(self.linear1(z))
-        z = torch.sigmoid(self.linear2(z))
-        z = torch.sigmoid(self.linear3(z))
+        #z = torch.sigmoid(self.linear2(z))
+        #z = torch.sigmoid(self.linear3(z))
         z = torch.sigmoid(self.linear4(z))
 
 
-        return z.reshape((-1, 1, 28, 28))
+        return z#.reshape((-1, 1, 28, 28))
 
 class VariationalAutoencoder(nn.Module):
     def __init__(self, latent_dims):
@@ -133,7 +133,7 @@ def train(model, dataloader, optimizer, lamda):
     KLD_tot = 0
 
     for data in dataloader:
-        data, _ = data
+        #data, _ = data Floris check?
         data = data.to(device)
         data_hat = model(data)
 
@@ -162,7 +162,7 @@ def validate(model, dataloader, lamda):
     KLD_tot = 0
     with torch.no_grad():
         for data in dataloader:
-            data, _ = data
+            #data, _ = data
             data = data.to(device)
 
             #encoded_data = model.encoder(data)
@@ -186,12 +186,12 @@ def validate(model, dataloader, lamda):
 
 
 #layer sizes
-l1 = 512
-l2 = 512
+l1 = 0
+l2 = 0
 l3 = 512
 
-n = 8
-lamda_seq = np.logspace(-6, 1, n)
+n = 3
+lamda_seq = np.logspace(-3, -1, n)
 
 for latent_dimensions in [2, 4, 8]:
 
@@ -221,13 +221,15 @@ for latent_dimensions in [2, 4, 8]:
             os.mkdir("./Figures")
 
     if (not os.path.isfile("./Models_test/VAE-{}-{}-{}-{}_0.pth".format(latent_dimensions, l1, l2, l3))) or retrain == "y":
-        num_epochs = 25
+        num_epochs = 10
 
         for i in range(n):
             lamda = lamda_seq[i]
             for epoch in range(num_epochs):
+                print("test")
                 train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
                 val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
+                print("Epoch:" + epoch + ", train_loss:" + MSE_t + ", val_loss:" + MSE_v)
                 torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, l3, i))
 
 
