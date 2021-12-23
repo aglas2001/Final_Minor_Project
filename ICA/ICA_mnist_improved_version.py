@@ -93,7 +93,7 @@ def loaddataOneNumber(mnist_dataset, split, Number):
 
 
 def ApplyICA(desired_dim, scaler, train_img, test_img, N):
-    ica = FastICA(n_components=4,random_state=0, max_iter = 1000)
+    ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 1000)
     
     
     ica.fit(train_img)

@@ -15,10 +15,10 @@ def ShowParaview(filename,repren):
     # dp.PointData = 'a'
     
     
-    ps.Show(reader)
+    display = ps.Show(reader)
     ps.Render()
     
-    #dp.ColorArrayName = ['POINTS', 'Displacement']
+    ps.ColorBy(display, ("Surface", "Displacement"))
     
     scene = ps.GetAnimationScene()
     scene.FramesPerTimestep = 1
@@ -26,16 +26,18 @@ def ShowParaview(filename,repren):
 
 
 
-filename0 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
+def ShowComponents(Dimension,location):
+    for i in range (Dimension):
+        filename = location + "Component_"+str(i+1)+".vtu"
+        ShowParaview(filename,'Surface')
 
-filename1 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/WritingVTU/RveTestPara1Remade.vtu"
+        
+        
+        
+        
 
-filename2 = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/Github_cloned/Final_Minor_Project/WritingVTU/RveTestPara1Remade2.vtu"
-
-
-ShowParaview(filename2,'Surface')
-
-ShowParaview(filename2,'Surface')
+location = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/ICA/VTUFiles/Components/"
+ShowComponents(4,location)
 
 
 
