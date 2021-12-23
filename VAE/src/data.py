@@ -16,7 +16,7 @@ class DisplacementDataset(Dataset):
             if isdir(join(data_folder, folder)):
                 for data_file in listdir(join(data_folder, folder)):
                     if isfile(join(join(data_folder, folder), data_file)):
-                        file_list.append(join(join(data_folder, folder)))
+                        file_list.append(join(join(data_folder, folder), data_file))
 
         #train_folders = np.zeros((1-ratio)*len(folder_list))
         #validation_folders = np.zeros(ratio*len(folder_list))
@@ -66,6 +66,8 @@ class DisplacementDataset(Dataset):
     def __getitem__(self, index):
         displacement = np.loadtxt(self.displacements[index], usecols=(0,1))
         displacement = displacement.flatten()
+        displacement = torch.from_numpy(displacement)
+        displacement = displacement.type(torch.FloatTensor)
 
         return displacement
 
