@@ -18,7 +18,7 @@ def ShowParaview(filename,repren):
     display = ps.Show(reader)
     ps.Render()
     
-    ps.ColorBy(display, ("Surface", "Displacement"))
+    ps.ColorBy(display, ("POINTS", "Displacement"))
     
     scene = ps.GetAnimationScene()
     scene.FramesPerTimestep = 1

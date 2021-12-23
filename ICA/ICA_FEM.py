@@ -50,8 +50,9 @@ class DisplacementDataset(Dataset):
     def __getitem__(self, index):
         displacement_x = self.displacements[index, 0]
         displacement_y = self.displacements[index, 1]
+        displacement_z = 0
     
-        return displacement_x, displacement_y
+        return displacement_x, displacement_y,displacement_z
 
 
 
@@ -80,51 +81,47 @@ def load_all_data(address):
 
 
 def RandomTrainTestSplit(split, all_data, start, folders):
-    startcopy = cp.copy(start)
-    folderscopy = cp.copy(folders)
     N, D = all_data.shape
     LoopN = int(split*len(folders))
     
     train = np.zeros((N,D))
-    train_folders = []
+    train_folders = {"Folders":[],"Lengths": [], "StartPostion": []}
     
     count = 0
     done = []
     i=0
-    while i < LoopN-1:
-        r = random.randint(0,len(startcopy)-2)
+    while i < LoopN:
+        r = random.randint(0,len(start)-2)
         if r not in done:
-            p = startcopy[r]
-            q = startcopy[r+1]
+            p = start[r]
+            q = start[r+1]
             train[count:count+(q-p)] = all_data[p:q]
-            f = folderscopy[r]
-            train_folders.append(f)
+            f = folders[r]
+            train_folders["Folders"].append(f)
+            train_folders["Lengths"].append(q-p)
             done.append(r)
             count += q-p
             i+=1
     N_test = N - count
     test = np.zeros((N_test,D))
-    test_folders = []
+    test_folders = {"Folders":[],"Lengths": []}
     count2 = 0
     for i in range(len(folders)-1):
         if i not in done:
-            p = startcopy[i]
-            q = startcopy[i+1]
+            p = start[i]
+            q = start[i+1]
             test[count2:count2+(q-p)] = all_data[p:q]
-            f = folderscopy[i]
-            test_folders.append(f)
+            f = folders[i]
+            test_folders["Folders"].append(f)
+            test_folders["Lengths"].append(q-p)
+
             count2 += q-p
-    p = startcopy[-1]
+    p = start[-1]
     test[count2:] = all_data[p:]
-    f = folderscopy[-1]
-    train_folders.append(f)
-    return train[0:count,:],train_folders, test,test_folders
-
-
-
-
-
-
+    f = folders[-1]
+    test_folders["Folders"].append(f)
+    test_folders["Lengths"].append(N-start[-1])
+    return train[0:count,:],train_folders, test, test_folders
 
 
 ### Getting Parameters
@@ -206,6 +203,29 @@ def CreateComponentFiles(A, desired_dim, location):
         DeleteFile(filename)
         create_vtu(A[:,i].reshape(1034,2),filename)
 
+
+def CreateVTUOriganalRecon(bcs, test_folders, ReconICA):
+    start_pos = sum(test_folders["Lengths"][:bcs])
+    num_para = test_folders["Lengths"][bcs]
+    Folder = test_folders["Folders"][bcs]
+    PathR = "VTUFiles/Reconstruction/"+Folder
+    PathO = "VTUFiles/Original/"+Folder
+
+    if not os.path.exists(PathR):
+        os.makedirs(PathR)
+    if not os.path.exists(PathO):
+        os.makedirs(PathO)
+        
+
+        
+    for i in range(num_para):
+        DeleteFile("VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        DeleteFile("VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+        rec_para, true_para = get_para(start_pos,i,ReconICA)
+        create_vtu(rec_para,"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        create_vtu(true_para,"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+
+
 ##    
 #### ICA
 ##
@@ -265,11 +285,11 @@ start = cp.copy( helpstart)
 
 
 
-# split_point = start[950]
-# test_names = folder_names[950:]
-# train, test = np.split(all_data,[split_point])
+split_point = start[950]
+test_names = folder_names[950:]
+train, test = np.split(all_data,[split_point])
 
-train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
+# train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
 
 
 
@@ -293,6 +313,7 @@ CreateComponentFiles(A, desired_dim, location)
 #%% make 50 VTU files for gif
 print("Make Sure in ICA Folder" )
 
+
 bcs = 0
 
 print(test_names[bcs])
@@ -303,11 +324,17 @@ print(start_pos)
 
 for i in range(num_para):
     DeleteFile("VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
-    DeleteFile("VTUFiles/Original/para_"+str(i+1)+".vtu")
+    DeleteFile("VTUFiles/Orignal/para_"+str(i+1)+".vtu")
     rec_para, true_para = get_para(start_pos,i,ReconICA)
     create_vtu(rec_para,"VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
     create_vtu(true_para,"VTUFiles/Original/para_"+str(i+1)+".vtu")
-    
+
+
+
+# CreateVTUOriganalRecon(bcs, test_folders, ReconICA)
+
+
+   
 
 
 
