@@ -185,7 +185,7 @@ for i in range (desired_dim):
     
 #%% make 50 VTU files for gif
 
-bcs = 0
+bcs = 1
 
 print(test_names[bcs])
 num_para = start[951+bcs] - start[950+bcs]
