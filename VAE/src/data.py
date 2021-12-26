@@ -7,7 +7,8 @@ from os.path import isfile, isdir, join
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
-    def __init__(self, data_folder, ratio, seed, train):
+    def __init__(self, data_folder, ratio, seed, train, tensor):
+        self.tensor = tensor
 
         np.random.seed(seed)
 
@@ -38,15 +39,16 @@ class DisplacementDataset(Dataset):
                         validation_data.append(join(join(data_folder, folder), data_file))
             self.displacements = np.array(validation_data)
 
-        print(len(self.displacements))
+        #print(len(self.displacements))
     def __len__(self):
         return len(self.displacements)
 
     def __getitem__(self, index):
         displacement = np.loadtxt(self.displacements[index], usecols=(0,1))
         displacement = displacement.flatten()
-        displacement = torch.from_numpy(displacement)
-        displacement = displacement.type(torch.FloatTensor)
+        if self.tensor:
+            displacement = torch.from_numpy(displacement)
+            displacement = displacement.type(torch.FloatTensor)
 
         return displacement
 
