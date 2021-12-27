@@ -58,4 +58,4 @@ class DisplacementDataset(Dataset):
 #print(f"Displacements batch shape: {train_displacements_x.size()}")
 #print(f"Label: {train_displacements_y}")
 
-#DisplacementDataset("../../Dataset/Data_nonlinear/", ratio=0.2, seed=0, train=False)
+DisplacementDataset("../../Dataset/Data_nonlinear_new/", ratio=0.2, seed=0, train=False)
