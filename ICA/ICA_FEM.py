@@ -161,7 +161,6 @@ def DeleteFile(filename):
 
 def MakeVTUFile(points,cells,PointData, CellData,filename): 
     ## points and cells are arrays, Point Data is a dictionary
-
     mesh = meshio.Mesh(
         points,
         cells,
@@ -182,34 +181,36 @@ def ReadVTU(filename):
     return points, cells, PointData
 
 def GetPointsAndCells():
-    filename  = "../DataSet/rve_test/para_1.vtu"
+    filename  = "/../DataSet/rve_test/para_1.vtu"
     mesh = meshio.read(filename)
     points, cells = mesh.points, mesh.cells
     return points, cells
 
-def create_vtu(para,file_name): 
+def create_vtu(para,filename): 
     Disp = np.reshape(para,(1034,2))
     Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
     Disp_xyz[:,:-1] = Disp
     point_data = {"Displacement":Disp_xyz}    
-    MakeVTUFile(points,cells,point_data, {}, file_name)
+    MakeVTUFile(points,cells,point_data, {}, filename)
     
     
     
     
-def CreateComponentFiles(A, desired_dim, location):
+def CreateComponentFiles(A, desired_dim, Path = os.getcwd()):
     for i in range (desired_dim):
-        filename = location + "Component_"+str(i+1)+".vtu"
+        filename = Path + "VTUFiles/Components/Component_"+str(i+1)+".vtu"
         DeleteFile(filename)
         create_vtu(A[:,i].reshape(1034,2),filename)
 
 
-def CreateVTUOriganalRecon(bcs, test_folders, ReconICA):
+def CreateVTUOriganalRecon(bcs, test_folders, ReconICA, Path = os.getcwd()):
     start_pos = sum(test_folders["Lengths"][:bcs])
     num_para = test_folders["Lengths"][bcs]
     Folder = test_folders["Folders"][bcs]
-    PathR = "VTUFiles/Reconstruction/"+Folder
-    PathO = "VTUFiles/Original/"+Folder
+    
+    
+    PathR = Path+"VTUFiles/Reconstruction/"+Folder
+    PathO = Path+"VTUFiles/Original/"+Folder
 
     if not os.path.exists(PathR):
         os.makedirs(PathR)
@@ -219,11 +220,30 @@ def CreateVTUOriganalRecon(bcs, test_folders, ReconICA):
 
         
     for i in range(num_para):
-        DeleteFile("VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
-        DeleteFile("VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+        DeleteFile(Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        DeleteFile(Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
         rec_para, true_para = get_para(start_pos,i,ReconICA)
-        create_vtu(rec_para,"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
-        create_vtu(true_para,"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+        create_vtu(rec_para,Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        create_vtu(true_para,Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+
+
+def ChangingComponents(ComponentToChange, frames, AmountOfComponents, ica, Path):
+    COMP = np.zeros((frames,AmountOfComponents))
+    L = np.linspace(-2e-3,2e-3, frames)
+    COMP[:,ComponentToChange] = L
+    
+    ReconCOMP = ica.inverse_transform(COMP)
+    PathC = Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)
+
+    if not os.path.exists(PathC):
+        os.makedirs(PathC)
+        
+        
+    for i in range(frames):
+         DeleteFile(Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
+         create_vtu(ReconCOMP[i],Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
+    return ReconCOMP
+
 
 
 ##    
@@ -248,21 +268,24 @@ def apply_pca(train, test, desired_dim):
 
 
 def ApplyICA(desired_dim, train, test):
-    scaler = StandardScaler()
-    scaler.fit(train)
+    # scaler = StandardScaler()
+    # scaler.fit(train)
+    
+    # std_train = scaler.transform(train)
+    # std_test = scaler.transform(test)
+
     
     ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 1000)
     
     
     ica.fit(train)
     SourceICA = ica.transform(test)
-
         
     ReconICA = ica.inverse_transform(SourceICA)
-    ReconICA = scaler.inverse_transform(ReconICA)
+    # ReconICA = scaler.inverse_transform(ReconICA)
         
     A = ica.mixing_  # Get estimated mixing matrix
-    return ica,SourceICA,ReconICA, A
+    return ica, SourceICA, ReconICA, A, SourceICA
 
 
 #%% load data and apply pca
@@ -285,11 +308,11 @@ start = cp.copy( helpstart)
 
 
 
-split_point = start[950]
-test_names = folder_names[950:]
-train, test = np.split(all_data,[split_point])
+# split_point = start[950]
+# test_names = folder_names[950:]
+# train, test = np.split(all_data,[split_point])
 
-# train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
+train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
 
 
 
@@ -297,41 +320,45 @@ train, test = np.split(all_data,[split_point])
 # desired dimentionality in latent space
 desired_dim = 4
 
-ica, SourceICA, ReconICA, A = ApplyICA(desired_dim, train, test)
+ica, SourceICA, ReconICA, A, aa  = ApplyICA(desired_dim, train, test)
 
 #%% get point and cell data from an existing FEM solution
-filenameRead  = "../DataSet/rve_test/para_1.vtu"
-points, cells, _ = ReadVTU(filenameRead)
+Path = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/"
+#%%
+points, cells= GetPointsAndCells()
 
 #%% make new VTU files
 ### Make Sure in ICA Folder
 print("Make Sure in ICA Folder" )
 
 location = "VTUFiles/Components/"
-CreateComponentFiles(A, desired_dim, location)
+CreateComponentFiles(A, desired_dim, Path)
     
+
+
+ChangingComponents(1, 50, desired_dim, ica, Path)
 #%% make 50 VTU files for gif
 print("Make Sure in ICA Folder" )
 
 
-bcs = 0
+bcs = 5
 
-print(test_names[bcs])
-num_para = start[951+bcs] - start[950+bcs]
-print(num_para)
-start_pos = start[950+bcs]-split_point
-print(start_pos)
+# print(test_names[bcs])
+# num_para = start[951+bcs] - start[950+bcs]
+# print(num_para)
+# start_pos = start[950+bcs]-split_point
+# print(start_pos)
 
-for i in range(num_para):
-    DeleteFile("VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
-    DeleteFile("VTUFiles/Orignal/para_"+str(i+1)+".vtu")
-    rec_para, true_para = get_para(start_pos,i,ReconICA)
-    create_vtu(rec_para,"VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
-    create_vtu(true_para,"VTUFiles/Original/para_"+str(i+1)+".vtu")
+# for i in range(50):
+#     DeleteFile("VTUFiles/Reconstruction/para_"+str(i+1)+".vtu", Path)
+#     DeleteFile("VTUFiles/Orignal/para_"+str(i+1)+".vtu", Path)
+    # rec_para, true_para = get_para(start_pos,i,ReconICA)
+    # create_vtu(rec_para,"VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
+    # create_vtu(true_para,"VTUFiles/Original/para_"+str(i+1)+".vtu")
 
 
 
-# CreateVTUOriganalRecon(bcs, test_folders, ReconICA)
+CreateVTUOriganalRecon(bcs, test_folders, ReconICA,Path)
 
 
    
