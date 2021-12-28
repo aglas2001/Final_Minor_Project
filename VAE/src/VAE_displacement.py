@@ -29,16 +29,16 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 batch_size = 128
 
 training_data = DisplacementDataset(
-   data_folder="../../Dataset/Data_nonlinear/",
+   data_folder="../../Dataset/Data_nonlinear_new//",
    train=True,
    ratio=0.2,
    seed=0
 )
 
 validation_data = DisplacementDataset(
-   data_folder="../../Dataset/Data_nonlinear/",
+   data_folder="../../Dataset/Data_nonlinear_new//",
    train=False,
-   ratio=0.2,
+   ratio=0.2,   
    seed=0
 )
 
