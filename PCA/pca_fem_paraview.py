@@ -24,7 +24,7 @@ class DisplacementDataset(Dataset):
     def __init__(self, data_folder):
         file_count = len(listdir(data_folder))
 
-        displacement_matrix = np.zeros((file_count, 1034*2))
+        displacement_matrix = np.zeros((file_count, 1636*2))
 
         def order(input):
             return int(input.strip("para_.txt"))
@@ -56,7 +56,7 @@ def load_all_data(address):
     folder_names = next(walk(address), (None, None, []))[1]
     random.shuffle(folder_names)
     total_file_count = sum([len(files) for r, d, files in walk(address)])
-    num_disp = 1034*2
+    num_disp = 1636*2
     
     all_data = np.zeros((total_file_count,num_disp))
     start = []
@@ -99,8 +99,8 @@ def get_para(start,para):
 #start is first position in reconstruction and test!
 def get_all_paras(start,num_paras):
     
-    rec_paras = np.zeros((num_paras,2*1034))
-    true_paras = np.zeros((num_paras,2*1034))
+    rec_paras = np.zeros((num_paras,2*1636))
+    true_paras = np.zeros((num_paras,2*1636))
     for i in range(num_paras):
         rec_paras[i] = reconstruction[start+i]
         true_paras[i] = test[start+i]
@@ -149,14 +149,14 @@ def GetPointsAndCells():
     return points, cells
 
 def create_vtu(para,file_name): 
-    Disp = np.reshape(para,(1034,2))
+    Disp = np.reshape(para,(1636,2))
     Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
     Disp_xyz[:,:-1] = Disp
     point_data = {"Displacement":Disp_xyz}    
     MakeVTUFile(points,cells,point_data, {}, file_name)
 
-#%% load data and apply pca
-all_data, folder_names, start = load_all_data("../DataSet/Data_nonlinear/")
+#%% load data and split into training and validationd data
+all_data, folder_names, start = load_all_data("../DataSet/Data_nonlinear_new/")
 
 #split data in train and test sample
 split_point = start[950]
