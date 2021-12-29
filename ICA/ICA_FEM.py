@@ -19,6 +19,7 @@ import copy as cp
 import meshio
 import os
 import random
+import json
 
 
 ####
@@ -77,6 +78,7 @@ def load_all_data(address):
             count += 1
             
     return all_data, folder_names, start
+
 
 
 
@@ -181,7 +183,7 @@ def ReadVTU(filename):
     return points, cells, PointData
 
 def GetPointsAndCells():
-    filename  = "/../DataSet/rve_test/para_1.vtu"
+    filename  = "../DataSet/rve_test/para_1.vtu"
     mesh = meshio.read(filename)
     points, cells = mesh.points, mesh.cells
     return points, cells
@@ -314,7 +316,39 @@ start = cp.copy( helpstart)
 
 train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
 
+#%%
+trainfile = "train.txt"
+testfile = "test.txt"
+trainfoldersfile = "trainfolders.txt"
+testfoldersfile = "testfolders.txt"
 
+#%%
+
+# DeleteFile(trainfile)
+DeleteFile(testfile)
+DeleteFile(trainfoldersfile)
+DeleteFile(testfoldersfile)
+
+
+# f = open(trainfile,"w")
+# np.savetxt(trainfile,train)
+
+f = open(testfile,"w")
+np.savetxt(testfile,test)
+
+json.dump(train_folders, open(trainfoldersfile,'w'))
+
+json.dump(test_folders, open(testfoldersfile,'w'))
+
+
+#%%
+train = np.loadtxt(trainfile)
+
+test = np.loadtxt(testfile)
+
+train_folders = json.load(open(trainfoldersfile))
+
+test_folders = json.load(open(testfoldersfile))
 
 #%%
 # desired dimentionality in latent space
@@ -335,8 +369,8 @@ location = "VTUFiles/Components/"
 CreateComponentFiles(A, desired_dim, Path)
     
 
-
-ChangingComponents(1, 50, desired_dim, ica, Path)
+#%%
+ChangingComponents(3, 50, desired_dim, ica, Path)
 #%% make 50 VTU files for gif
 print("Make Sure in ICA Folder" )
 
