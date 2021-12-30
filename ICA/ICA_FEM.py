@@ -29,7 +29,7 @@ class DisplacementDataset(Dataset):
     def __init__(self, data_folder):
         file_count = len(listdir(data_folder))
 
-        displacement_matrix = np.zeros((file_count, 1034*2))
+        displacement_matrix = np.zeros((file_count, 1636*2))
 
         def order(input):
             return int(input.strip("para_.txt"))
@@ -62,7 +62,7 @@ def load_all_data(address):
     folder_names = next(walk(address), (None, None, []))[1]
     random.shuffle(folder_names)
     total_file_count = sum([len(files) for r, d, files in walk(address)])
-    num_disp = 1034*2
+    num_disp = 1636*2
     
     all_data = np.zeros((total_file_count,num_disp))
     start = []
@@ -136,8 +136,8 @@ def get_para(start,para,reconstruction):
 #start is first position in reconstruction and test!
 def get_all_paras(start,num_paras,reconstruction):
     
-    rec_paras = np.zeros((num_paras,2*1034))
-    true_paras = np.zeros((num_paras,2*1034))
+    rec_paras = np.zeros((num_paras,2*1636))
+    true_paras = np.zeros((num_paras,2*1636))
     for i in range(num_paras):
         rec_paras[i] = reconstruction[start+i]
         true_paras[i] = test[start+i]
@@ -183,13 +183,13 @@ def ReadVTU(filename):
     return points, cells, PointData
 
 def GetPointsAndCells():
-    filename  = "../DataSet/rve_test/para_1.vtu"
+    filename  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rveLinearMultiple/para_1.vtu"
     mesh = meshio.read(filename)
     points, cells = mesh.points, mesh.cells
     return points, cells
 
 def create_vtu(para,filename): 
-    Disp = np.reshape(para,(1034,2))
+    Disp = np.reshape(para,(1636,2))
     Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
     Disp_xyz[:,:-1] = Disp
     point_data = {"Displacement":Disp_xyz}    
@@ -202,7 +202,7 @@ def CreateComponentFiles(A, desired_dim, Path = os.getcwd()):
     for i in range (desired_dim):
         filename = Path + "VTUFiles/Components/Component_"+str(i+1)+".vtu"
         DeleteFile(filename)
-        create_vtu(A[:,i].reshape(1034,2),filename)
+        create_vtu(A[:,i].reshape(1636,2),filename)
 
 
 def CreateVTUOriganalRecon(bcs, test_folders, ReconICA, Path = os.getcwd()):
@@ -239,7 +239,6 @@ def ChangingComponents(ComponentToChange, frames, AmountOfComponents, ica, Path)
 
     if not os.path.exists(PathC):
         os.makedirs(PathC)
-        
         
     for i in range(frames):
          DeleteFile(Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
@@ -291,20 +290,20 @@ def ApplyICA(desired_dim, train, test):
 
 
 #%% load data and apply pca
-print("Make Sure in ICA Folder" )
+filename = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/Data_nonlinear_new/"
 
-all_data, folder_names, start = load_all_data("../DataSet/Data_nonlinear/")
+all_data, folder_names, start = load_all_data(filename)
 
-#%%
-Helpall_data = cp.copy(all_data)
-Helpfoldernames = cp.copy(folder_names)
-helpstart = cp.copy(start)
+# #%%
+# Helpall_data = cp.copy(all_data)
+# Helpfoldernames = cp.copy(folder_names)
+# helpstart = cp.copy(start)
 
-#%%
-all_data = cp.copy( Helpall_data)
-folder_names = cp.copy( Helpfoldernames)
-start = cp.copy( helpstart)
-#%%
+ #%%
+# all_data = cp.copy( Helpall_data)
+# folder_names = cp.copy( Helpfoldernames)
+# start = cp.copy( helpstart)
+
 #split data in train and test sample
 
 
@@ -314,24 +313,24 @@ start = cp.copy( helpstart)
 # test_names = folder_names[950:]
 # train, test = np.split(all_data,[split_point])
 
-train,train_folders, test,test_folders = RandomTrainTestSplit(0.8, all_data, start,folder_names)
+train,train_folders, test,test_folders = RandomTrainTestSplit(0.9, all_data, start,folder_names)
 
-#%%
+
 trainfile = "train.txt"
 testfile = "test.txt"
 trainfoldersfile = "trainfolders.txt"
 testfoldersfile = "testfolders.txt"
 
-#%%
 
-# DeleteFile(trainfile)
+
+DeleteFile(trainfile)
 DeleteFile(testfile)
 DeleteFile(trainfoldersfile)
 DeleteFile(testfoldersfile)
 
 
-# f = open(trainfile,"w")
-# np.savetxt(trainfile,train)
+f = open(trainfile,"w")
+np.savetxt(trainfile,train)
 
 f = open(testfile,"w")
 np.savetxt(testfile,test)
@@ -370,7 +369,9 @@ CreateComponentFiles(A, desired_dim, Path)
     
 
 #%%
-ChangingComponents(3, 50, desired_dim, ica, Path)
+for i in range(desired_dim):
+    ChangingComponents(i, 50, desired_dim, ica, Path)
+
 #%% make 50 VTU files for gif
 print("Make Sure in ICA Folder" )
 
