@@ -233,7 +233,7 @@ for latent_dimensions in [2, 4, 8]:
                 print("test")
                 train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
                 val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
-                print("Epoch:" + epoch + ", train_loss:" + MSE_t + ", val_loss:" + MSE_v)
+                print("Epoch:" + str(epoch) + ", train_loss:" + str(MSE_t) + ", val_loss:" + str(MSE_v))
                 torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, l3, i))
 
 
