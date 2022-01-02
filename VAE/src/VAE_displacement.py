@@ -276,7 +276,7 @@ for latent_dimensions in [2, 4, 8]:
     # In[47]:
 
 
-    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}-{}_5.pth".format(latent_dimensions, l1, l2, l3)))
+    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}-{}_2.pth".format(latent_dimensions, l1, l2, l3)))
 
 
 # In[53]:
