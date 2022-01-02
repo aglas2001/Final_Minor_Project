@@ -17,6 +17,7 @@ from matplotlib import pyplot as plt
 import meshio
 import os
 import random
+import json
 
 
 #Custom Dataset loader for our displacment data
@@ -84,8 +85,8 @@ def apply_pca(train, test, desired_dim):
     
     pca = PCA(n_components=desired_dim)
     pca.fit(std_data)
-    pc = pca.components_
     latent = pca.transform(std_test)
+    pc = scaler.inverse_transform(pca.components_)
     rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
     
     return pc, latent, rec_data
@@ -163,6 +164,18 @@ split_point = start[950]
 test_names = folder_names[950:]
 train, test = np.split(all_data,[split_point])
 
+#%% arnouds way to load data
+
+directory = "C:/Users/jobre/OneDrive - Erasmus University Rotterdam/data_arnoud/"
+train = np.loadtxt(directory+"train.txt")
+
+test = np.loadtxt(directory+"test.txt")
+
+train_folders = json.load(open(directory+"trainfolders.txt"))
+
+test_folders = json.load(open(directory+"testfolders.txt"))
+test_names = test_folders['Folders']
+
 #%%
 # desired dimentionality in latent space
 desired_dim = 4
@@ -170,7 +183,7 @@ desired_dim = 4
 pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 
 #%% get point and cell data from an existing FEM solution
-filenameRead  = "../DataSet/rve_test/para_1.vtu"
+filenameRead  = "../DataSet/rveLinearMultiple/para_1.vtu"
 points, cells, _ = ReadVTU(filenameRead)
 
 #%% make new VTU files
@@ -181,24 +194,36 @@ points, cells, _ = ReadVTU(filenameRead)
 # create_vtu(true_para, "vtu_files/true_para.vtu")
 
 for i in range (desired_dim):
-    create_vtu(pc[i],"pc_"+str(i+1)+".vtu")
+    create_vtu(pc[i],"vtu_files/principal_components_pca_4/pc_"+str(i+1)+".vtu")
     
 #%% make 50 VTU files for gif
 
-bcs = 1
+bcs = 5
 
+start_pos = 0
+for i in range(bcs):
+    start_pos += len(listdir('../DataSet/Data_nonlinear_new/'+test_names[i]))
+    
 print(test_names[bcs])
-num_para = start[951+bcs] - start[950+bcs]
-print(num_para)
-start_pos = start[950+bcs]-split_point
-print(start_pos)
+num_para = len(listdir('../DataSet/Data_nonlinear_new/'+test_names[bcs]))
+print(str(num_para)+' files')
+
+print('starting position in test/reconstruction: '+str(start_pos))
 
 for i in range(num_para):
     rec_para, true_para = get_para(start_pos,i)
-    create_vtu(rec_para,"vtu_files/reconstructed_paras/para_"+str(i+1)+".vtu")
-    create_vtu(true_para,"vtu_files/true_paras/para_"+str(i+1)+".vtu")
+    create_vtu(rec_para,"vtu_files/reconstructed_paras/"+test_names[bcs]+"_rec_"+str(i+1)+".vtu")
+    create_vtu(true_para,"vtu_files/true_paras/"+test_names[bcs]+"_true_"+str(i+1)+".vtu")
     
 
-
-
+#%% plot mse
+mse = np.zeros(13)
+for i in range(13):
+    _, _, rec = apply_pca(train, test, i)
+    mse[i] = mean_squared_error(test,rec)
+    
+plt.plot(mse)
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error (MSE)")
+plt.xlim([1,12])
 

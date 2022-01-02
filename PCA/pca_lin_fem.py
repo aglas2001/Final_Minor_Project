@@ -84,8 +84,8 @@ def apply_pca(train, test, desired_dim):
     
     pca = PCA(n_components=desired_dim)
     pca.fit(std_data)
-    pc = pca.components_
     latent = pca.transform(std_test)
+    pc = scaler.inverse_transform(pca.components_)
     rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
     
     return pc, latent, rec_data
@@ -153,6 +153,7 @@ def create_vtu(para,file_name):
     Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
     Disp_xyz[:,:-1] = Disp
     point_data = {"Displacement":Disp_xyz}    
+    #print(point_data)
     MakeVTUFile(points,cells,point_data, {}, file_name)
     
     
@@ -176,7 +177,7 @@ desired_dim = 3
 pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 
 #%%
-bcs = 2
+bcs = 5
 
 print(test_names[bcs])
 num_para = start[951+bcs] - start[950+bcs]
@@ -186,10 +187,29 @@ print(start_pos)
 
 for i in range(num_para):
     rec_para, true_para = get_para(start_pos,i)
-    create_vtu(rec_para,"vtu_files/reconstructed_paras_lin/"+str(test_names[bcs])+".vtu")
-    create_vtu(true_para,"vtu_files/true_paras_lin/para_"+str(i+1)+".vtu")
+    create_vtu(rec_para,"vtu_files/reconstructed_paras_lin/rec_"+str(test_names[bcs])+".vtu")
+    create_vtu(true_para,"vtu_files/true_paras_lin/true_"+str(test_names[bcs])+".vtu")
     
 #%% plot principal components
 
 for i in range(desired_dim):
     create_vtu(pc[i],"vtu_files/lin_pc_"+str(i+1)+".vtu")
+    
+    
+#%% mse for different dimensionalities
+
+
+mse = np.zeros(13)
+for i in range(13):
+    pca = PCA(n_components=i+1)
+    scal = StandardScaler()
+    scal.fit(train)
+    pca.fit(train)
+    lat = pca.transform(test)
+    rec = scal.inverse_transform(pca.inverse_transform(lat))
+    mse[i] = mean_squared_error(test,rec)
+    
+plt.plot(mse)
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error (MSE)")
+plt.xlim([1,12])
