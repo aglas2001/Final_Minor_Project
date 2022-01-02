@@ -46,7 +46,7 @@ def GetPointsAndCells():
 
 
 
-filenameRead  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rve_test/para_1.vtu"
+filenameRead  = "Component_1.vtu"
 
 
 points, cells, PointData1 = ReadVTU(filenameRead)
@@ -56,16 +56,16 @@ filenameWrite1 = "RveTestPara1Remade.vtu"
 filenameWrite2 = "RveTestPara1Remade2.vtu"
 
 
-DeleteFile(filenameWrite1)
-MakeVTUFile(points,cells,PointData1, {}, filenameWrite1)
+# DeleteFile(filenameWrite1)
+# MakeVTUFile(points,cells,PointData1, {}, filenameWrite1)
 
 
-Disp = PointData1["Displacement"]
+# Disp = PointData1["Displacement"]
 
-PointData2 = {"Displacement":Disp}
+# PointData2 = {"Displacement":Disp}
 
 
-MakeVTUFile(points,cells,PointData2, {}, filenameWrite2)
+# MakeVTUFile(points,cells,PointData2, {}, filenameWrite2)
 
 
 

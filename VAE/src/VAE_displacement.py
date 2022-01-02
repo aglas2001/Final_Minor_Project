@@ -32,14 +32,18 @@ training_data = DisplacementDataset(
    data_folder="../../Dataset/Data_nonlinear_new//",
    train=True,
    ratio=0.2,
-   seed=0
+   size=0.1,
+   seed=0,
+   tensor=True
 )
 
 validation_data = DisplacementDataset(
    data_folder="../../Dataset/Data_nonlinear_new//",
    train=False,
-   ratio=0.2,   
-   seed=0
+   ratio=0.2,
+   size=0.1,
+   seed=0,
+   tensor=True
 )
 
 #label_indices_training = training_data.targets == 7
@@ -66,7 +70,7 @@ print(f"Feature batch shape: {checking_data.size()}")
 class VariationalEncoder(nn.Module):
     def __init__(self, latent_dims):
         super(VariationalEncoder, self).__init__()
-        self.linear1 = nn.Linear(2*1034, l3)
+        self.linear1 = nn.Linear(3272, l3)
         #self.linear2 = nn.Linear(l1, l2)
         #self.linear3 = nn.Linear(l2, l3)
         self.linear4 = nn.Linear(l3, latent_dimensions)
@@ -100,7 +104,7 @@ class Decoder(nn.Module):
         self.linear1 = nn.Linear(latent_dimensions, l3)
         #self.linear2 = nn.Linear(l3, l2)
         #self.linear3 = nn.Linear(l2, l1)
-        self.linear4 = nn.Linear(l3, 2*1034)
+        self.linear4 = nn.Linear(l3, 3272)
 
     def forward(self, z):
         z = torch.sigmoid(self.linear1(z))
@@ -229,7 +233,7 @@ for latent_dimensions in [2, 4, 8]:
                 print("test")
                 train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
                 val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
-                print("Epoch:" + epoch + ", train_loss:" + MSE_t + ", val_loss:" + MSE_v)
+                print("Epoch:" + str(epoch) + ", train_loss:" + str(MSE_t) + ", val_loss:" + str(MSE_v))
                 torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, l3, i))
 
 

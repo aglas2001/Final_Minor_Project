@@ -7,7 +7,7 @@ from os.path import isfile, isdir, join
 
 #Custom Dataset loader for our displacment data
 class DisplacementDataset(Dataset):
-    def __init__(self, data_folder, ratio, seed, train, tensor):
+    def __init__(self, data_folder, ratio, size, seed, train, tensor):
         self.tensor = tensor
 
         np.random.seed(seed)
@@ -17,8 +17,10 @@ class DisplacementDataset(Dataset):
             if isdir(join(data_folder, folder)):
                 folder_list.append(join(data_folder, folder))
 
-        train_folders = np.random.choice(np.array(folder_list), int((1-ratio)*len(folder_list)), replace=False)
-        validation_folders = np.setxor1d(np.array(folder_list), train_folders)
+        folder_list = np.random.choice(np.array(folder_list), int(size*len(folder_list)), replace=False)
+
+        train_folders = np.random.choice(folder_list, int((1-ratio)*len(folder_list)), replace=False)
+        validation_folders = np.setxor1d(folder_list, train_folders)
 
         
 
@@ -60,4 +62,4 @@ class DisplacementDataset(Dataset):
 #print(f"Displacements batch shape: {train_displacements_x.size()}")
 #print(f"Label: {train_displacements_y}")
 
-DisplacementDataset("../../Dataset/Data_nonlinear_new/", ratio=0.2, seed=0, train=False)
+#DisplacementDataset("../../Dataset/Data_nonlinear_new/", ratio=0.2, seed=0, train=False)
