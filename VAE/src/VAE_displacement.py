@@ -32,14 +32,16 @@ training_data = DisplacementDataset(
    data_folder="../../Dataset/Data_nonlinear_new//",
    train=True,
    ratio=0.2,
-   seed=0
+   seed=0,
+   tensor=True
 )
 
 validation_data = DisplacementDataset(
    data_folder="../../Dataset/Data_nonlinear_new//",
    train=False,
    ratio=0.2,   
-   seed=0
+   seed=0,
+   tensor=True
 )
 
 #label_indices_training = training_data.targets == 7
