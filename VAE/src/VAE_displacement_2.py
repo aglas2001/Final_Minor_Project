@@ -215,7 +215,7 @@ if retrain == "y":
         os.mkdir("./Figures")
 
 if (not os.path.isfile("./Models_test/VAE-{}-{}_0.pth".format(latent_dimensions, l1))) or retrain == "y":
-    num_epochs = 4
+    num_epochs = 50
 
     for i in range(n):
         lamda = lamda_seq[i]
