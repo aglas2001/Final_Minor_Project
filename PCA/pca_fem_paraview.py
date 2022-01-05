@@ -186,7 +186,7 @@ pc, latent_space, reconstruction = apply_pca(train, test, desired_dim)
 filenameRead  = "../DataSet/rveLinearMultiple/para_1.vtu"
 points, cells, _ = ReadVTU(filenameRead)
 
-#%% make new VTU files
+#%% plot principal components
 # bcs = 0
 
 # rec_para, true_para = get_para(bcs,0)
@@ -216,14 +216,45 @@ for i in range(num_para):
     create_vtu(true_para,"vtu_files/true_paras/"+test_names[bcs]+"_true_"+str(i+1)+".vtu")
     
 
+#%% analyse latent spaces
+
+focus = 3
+steps = 100
+stepsize = 2*max(pc[focus])
+
+# which boundary condition?
+bcs = 1
+
+start_pos = 0
+for i in range(bcs):
+    start_pos += len(listdir('../DataSet/Data_nonlinear_new/'+test_names[i]))
+    
+print(test_names[bcs])
+num_para = len(listdir('../DataSet/Data_nonlinear_new/'+test_names[bcs]))
+print(str(num_para)+' files')
+
+pca = PCA(desired_dim)
+scal = StandardScaler()
+scal.fit(train)
+pca.fit(train)
+lat = pca.transform(test)
+
+for i in range(steps):
+    lat[start_pos + num_para-2] += [0,0,0,stepsize]
+    rec = pca.inverse_transform(lat[start_pos + num_para-2])
+    create_vtu(rec,"vtu_files/latent_space_interpretation/focus_pc["+str(focus)+"]_"+str(i)+".vtu")
+
 #%% plot mse
 mse = np.zeros(13)
 for i in range(13):
     _, _, rec = apply_pca(train, test, i)
-    mse[i] = mean_squared_error(test,rec)
+    dif = abs(rec-test)
+    #mse[i] = mean_squared_error(test,rec)
+    mse[i] = np.mean(dif)
     
 plt.plot(mse)
 plt.xlabel("Dimensionality of latent space")
-plt.ylabel("Reconstruction error (MSE)")
+plt.ylabel("Reconstruction error (Mean error)")
 plt.xlim([1,12])
+
 

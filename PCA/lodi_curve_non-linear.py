@@ -69,9 +69,9 @@ for i in range(0,50):
 
 
 #%% Plot load-displacement curve:
-
-linear = displacements_x[:,8]
-plt.plot(linear)
+for i in range(35,50):
+    linear = displacements_x[:,i]
+    plt.plot(linear)
 
 #%%
 nonlin = displacements_x[:,150]

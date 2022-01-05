@@ -196,6 +196,25 @@ for i in range(desired_dim):
     create_vtu(pc[i],"vtu_files/lin_pc_"+str(i+1)+".vtu")
     
     
+#%% increase influence of one principal component
+
+
+focus = 0
+steps = 100
+stepsize = 10*max(pc[focus])
+bcs = 2
+
+pca = PCA(desired_dim)
+scal = StandardScaler()
+scal.fit(train)
+pca.fit(train)
+lat = pca.transform(test)
+
+for i in range(steps):
+    lat[bcs] += [stepsize,0,0]
+    rec = pca.inverse_transform(lat[bcs])
+    create_vtu(rec,"vtu_files/lin_latent_space_interpretation/lin_focus_pc["+str(focus)+"]_"+str(i)+".vtu")
+    
 #%% mse for different dimensionalities
 
 
@@ -207,7 +226,8 @@ for i in range(13):
     pca.fit(train)
     lat = pca.transform(test)
     rec = scal.inverse_transform(pca.inverse_transform(lat))
-    mse[i] = mean_squared_error(test,rec)
+    #mse[i] = mean_squared_error(test,rec)
+    mse[i] = abs(test-rec)
     
 plt.plot(mse)
 plt.xlabel("Dimensionality of latent space")
