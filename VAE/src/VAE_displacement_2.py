@@ -59,7 +59,7 @@ print(len(training_data))
 print(len(validation_data))
 
 checking_data = next(iter(train_loader))
-print(f"Feature batch shape: {checking_data.size()}")
+print(f"Feature batch shape: {checking_data[0]}")
 
 
 # In[28]:
@@ -188,7 +188,7 @@ def weight_reset(m):
 
 #layer sizes
 l1 = 2250
-latent_dimensions = 4
+latent_dimensions = 2
 
 n = 5
 lamda_seq = np.logspace(-3, 1, n)
@@ -212,14 +212,14 @@ print("--------------------------\n")
 retrain = input("Retrain the model? (y/n)\n")
 
 if retrain == "y":
-    if not os.path.isdir("./Models_test"):
+    if not os.path.isdir("./Models_displacement"):
         os.mkdir("./Models_test")
     if not os.path.isdir("./Loss_txt"):
         os.mkdir("./Loss_txt")
     if not os.path.isdir("./Figures"):
         os.mkdir("./Figures")
 
-if (not os.path.isfile("./Models_test/VAE-{}-{}_0.pth".format(latent_dimensions, l1))) or retrain == "y":
+if (not os.path.isfile("./Models_displacement/VAE-{}-{}_0.pth".format(latent_dimensions, l1))) or retrain == "y":
     num_epochs = 100
 
     for i in range(n):
@@ -228,7 +228,7 @@ if (not os.path.isfile("./Models_test/VAE-{}-{}_0.pth".format(latent_dimensions,
             train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
             val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
             print("epoch = {}, train_loss = {:.3f}, val_loss = {:.3f}".format(epoch, train_loss, val_loss))
-            torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, i))
+            torch.save(VAE.state_dict(), "./Models_displacement/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, i))
 
 
         print('\n lamda = {} \t train loss {:.3f} \t val loss {:.3f} '.format(lamda,train_loss,val_loss))
@@ -266,11 +266,11 @@ if (not os.path.isfile("./Models_test/VAE-{}-{}_0.pth".format(latent_dimensions,
     plt.show()
 
 else:
-    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}_0.pth".format(latent_dimensions, l1)))
+    VAE.load_state_dict(torch.load("./Models_displacement/VAE-{}-{}_0.pth".format(latent_dimensions, l1)))
 
 
 
-VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}_2.pth".format(latent_dimensions, l1)))
+VAE.load_state_dict(torch.load("./Models_displacement/VAE-{}-{}_2.pth".format(latent_dimensions, l1)))
 
 
 
@@ -311,61 +311,6 @@ def plot_latent(autoencoder, data, num_batches=100):
 
 #plot_latent(VAE, train_loader)
 
-
-
-# edit_number = input("Edit number with latent dimensions? (y/n)\n")
-# if edit_number == "y":
-
-#     img = validation_data[np.random.randint(0, 1020)][0].to(device)
-
-#     VAE.encoder.eval()
-#     VAE.decoder.eval()
-
-#     z_arr = np.zeros(latent_dimensions)
-
-#     with torch.no_grad():
-#         z = VAE.encoder(img)
-#         z_arr = z.to("cpu").detach().numpy()
-#         rec_img  = VAE.decoder(z)
-
-#     fig = plt.figure()
-#     plot = plt.imshow(rec_img.squeeze().numpy(), cmap='gist_gray')
-
-#     plt.subplots_adjust(bottom=0.4)
-
-#     #for n in range(latent_dimensions):
-
-#     z_arr = z_arr[0]
-
-#     ax_z1 = plt.axes([0.25, 0.1, 0.65, 0.03])
-#     z1_slider = Slider(ax=ax_z1, label='Z1', valmin=-20, valmax=20, valinit=z_arr[0])
-#     ax_z2 = plt.axes([0.25, 0.15, 0.65, 0.03])
-#     z2_slider = Slider(ax=ax_z2, label='Z2', valmin=-20, valmax=20, valinit=z_arr[1])
-#     ax_z3 = plt.axes([0.25, 0.2, 0.65, 0.03])
-#     z3_slider = Slider(ax=ax_z3, label='Z3', valmin=-20, valmax=20, valinit=z_arr[2])
-#     ax_z4 = plt.axes([0.25, 0.25, 0.65, 0.03])
-#     z4_slider = Slider(ax=ax_z4, label='Z4', valmin=-20, valmax=20, valinit=z_arr[3])
-
-#     def update_plot(val):
-#         z_arr = np.array([z1_slider.val, z2_slider.val, z3_slider.val, z4_slider.val], dtype=np.single)
-#         z = torch.from_numpy(z_arr)
-#         VAE.decoder.eval()
-#         with torch.no_grad():
-#             rec_img = VAE.decoder(z)
-#         plot.set_data(rec_img.squeeze().numpy())
-#         fig.canvas.draw_idle()
-
-#     z1_slider.on_changed(update_plot)
-#     z2_slider.on_changed(update_plot)
-#     z3_slider.on_changed(update_plot)
-#     z4_slider.on_changed(update_plot)
-
-#     #resetax = plt.axes([0.8, 0.025, 0.1, 0.04])
-#     #button = Button(resetax, 'Reset', hovercolor='0.975')
-
-#     plt.show()
-
-
 def get_z(X, Y):
     data = np.loadtxt("Loss_txt/Recon_loss_{}-{}_sigmoid.txt".format(X, l1), usecols=1, delimiter = ", ")
     index = int(np.log10(Y)+6)
@@ -390,3 +335,32 @@ def surface_plot():
     plt.show()
 
 #surface_plot()
+
+
+def GetPointsAndCells():
+    filename  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rveLinearMultiple/para_1.vtu"
+    mesh = meshio.read(filename)
+    points, cells = mesh.points, mesh.cells
+    return points, cells
+
+def create_vtu(para,filename): 
+    Disp = np.reshape(para,(1636,2))
+    Disp_xyz = np.zeros((Disp.shape[0],Disp.shape[1]+1))
+    Disp_xyz[:,:-1] = Disp
+    point_data = {"Displacement":Disp_xyz}    
+    MakeVTUFile(points,cells,point_data, {}, filename)
+
+def MakeVTUFile(points,cells,PointData, CellData,filename): 
+    ## points and cells are arrays, Point Data is a dictionary
+    mesh = meshio.Mesh(
+        points,
+        cells,
+        point_data=PointData,
+        cell_data = CellData,
+    )
+    mesh.write(
+        filename,  # str, os.PathLike, or buffer/open file
+    )
+    print("File is made")
+
+    return
