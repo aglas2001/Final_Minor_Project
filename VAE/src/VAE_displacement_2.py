@@ -59,7 +59,7 @@ val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
 print(len(training_data))
 print(len(validation_data))
 
-checking_data = next(iter(val_loader))
+checking_data = next(iter(train_loader))
 print(f"Feature batch shape: {checking_data[0]}")
 
 
@@ -188,11 +188,12 @@ def weight_reset(m):
 
 
 #layer sizes
-l1 = 2250
+l1 = 750
 latent_dimensions = 2
 
-n = 5
-lamda_seq = np.logspace(-3, 1, n)
+n = 1
+#lamda_seq = np.logspace(-3, 1, n)
+lamda_seq = [0.001]
 
 
 VAE = VariationalAutoencoder(latent_dimensions).to(device)
@@ -221,7 +222,7 @@ if retrain == "y":
         os.mkdir("./Figures")
 
 if (not os.path.isfile("./Models_displacement/VAE-{}-{}_0.pth".format(latent_dimensions, l1))) or retrain == "y":
-    num_epochs = 100
+    num_epochs = 30
 
     for i in range(n):
         lamda = lamda_seq[i]
@@ -271,7 +272,7 @@ else:
 
 
 
-VAE.load_state_dict(torch.load("./Models_displacement/VAE-{}-{}_2.pth".format(latent_dimensions, l1)))
+#VAE.load_state_dict(torch.load("./Models_displacement/VAE-{}-{}_2.pth".format(latent_dimensions, l1)))
 
 
 
@@ -377,6 +378,11 @@ def VAE_VTU(data):
         print(z_arr)
         result  = VAE.decoder(z)
 
+        np.savetxt("test_data_input.txt", data)
+        np.savetxt("test_data_output.txt", result)
+
         create_vtu(result, "test.vtu")
 
-VAE_VTU(checking_data[0])
+test_data = checking_data[20]
+print(test_data)
+VAE_VTU(test_data)
