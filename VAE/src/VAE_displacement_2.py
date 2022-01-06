@@ -16,6 +16,7 @@ from torchvision.utils import save_image
 
 from data import DisplacementDataset
 
+import meshio
 
 # In[2]:
 
@@ -58,7 +59,7 @@ val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
 print(len(training_data))
 print(len(validation_data))
 
-checking_data = next(iter(train_loader))
+checking_data = next(iter(val_loader))
 print(f"Feature batch shape: {checking_data[0]}")
 
 
@@ -79,7 +80,7 @@ class VariationalEncoder(nn.Module):
         self.kl = 0
 
     def forward(self, x):
-        x = torch.flatten(x, start_dim=1)
+        #x = torch.flatten(x, start_dim=1)
         x = torch.sigmoid(self.linear1(x))
 
         #reparametrization
@@ -338,7 +339,7 @@ def surface_plot():
 
 
 def GetPointsAndCells():
-    filename  = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/rveLinearMultiple/para_1.vtu"
+    filename  = "../../DataSet/rveLinearMultiple/para_1.vtu"
     mesh = meshio.read(filename)
     points, cells = mesh.points, mesh.cells
     return points, cells
@@ -364,3 +365,18 @@ def MakeVTUFile(points,cells,PointData, CellData,filename):
     print("File is made")
 
     return
+
+points, cells= GetPointsAndCells()
+
+def VAE_VTU(data):
+    VAE.encoder.eval()
+    VAE.decoder.eval()
+    with torch.no_grad():
+        z = VAE.encoder(data)
+        z_arr = z.to("cpu").detach().numpy()
+        print(z_arr)
+        result  = VAE.decoder(z)
+
+        create_vtu(result, "test.vtu")
+
+VAE_VTU(checking_data[0])
