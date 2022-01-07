@@ -102,7 +102,7 @@ class Decoder(nn.Module):
 
     def forward(self, z):
         z = torch.sigmoid(self.linear1(z))
-        z = torch.sigmoid(self.linear2(z))
+        z = (self.linear2(z)
 
 
         return z
