@@ -155,6 +155,15 @@ def create_vtu(para,file_name):
     Disp_xyz[:,:-1] = Disp
     point_data = {"Displacement":Disp_xyz}    
     MakeVTUFile(points,cells,point_data, {}, file_name)
+    
+def MeanRelativeError(test,rec):
+    M,N = test.shape
+    a = 0
+    for i in range(M):
+        for j in range(N):
+            if abs(test[i][j]) > 10e-10:
+                a += abs((test[i][j] - rec[i][j])/test[i][j])
+    return a/(M*N) * 100
 
 #%% load data and split into training and validationd data
 all_data, folder_names, start = load_all_data("../DataSet/Data_nonlinear_new/")
@@ -245,16 +254,73 @@ for i in range(steps):
     create_vtu(rec,"vtu_files/latent_space_interpretation/focus_pc["+str(focus)+"]_"+str(i)+".vtu")
 
 #%% plot mse
-mse = np.zeros(13)
+me = np.zeros(13)
 for i in range(13):
-    _, _, rec = apply_pca(train, test, i)
+    _, _, rec = apply_pca(train, test, i+1)
     dif = abs(rec-test)
     #mse[i] = mean_squared_error(test,rec)
-    mse[i] = np.mean(dif)
+    me[i] = np.mean(dif)
     
-plt.plot(mse)
+    
+arnoud = np.array([0.00023598050031853817,
+8.08508564272555e-05,
+1.6821949427635574e-05,
+1.4801583179654085e-05,
+1.2910891147998058e-05,
+1.1058062795850762e-05,
+9.184406106556314e-06,
+8.281515414607786e-06,
+7.578314675709659e-06,
+6.91376787413632e-06,
+6.19509813665839e-06,
+5.38756502572647e-06,
+4.8797152873737695e-06])
+
+
+#%%
+x = np.arange(1,14,1)
+
+plt.plot(x,arnoud, color = 'red', marker='o', label = 'ICA')
+plt.plot(x,me,color = 'blue', marker = 'o', label = 'PCA')
+plt.legend()
+plt.title("mean absolute error PCA vs ICA")
 plt.xlabel("Dimensionality of latent space")
-plt.ylabel("Reconstruction error (Mean error)")
-plt.xlim([1,12])
+plt.ylabel("Reconstruction error (Mean absolute error)")
+plt.xlim((1,12))
+
+#%%
+
+relative_err = np.zeros(13)
+for i in range(13):
+    _, _, rec = apply_pca(train, test, i+1)
+    MRE = MeanRelativeError(test,rec)
+    relative_err[i] = MRE
+    
+arnoud2 = np.array([154.7469068143036,
+ 95.57250780041515,
+ 26.213768287548856,
+ 24.04860059505978,
+ 21.53958779302064,
+ 18.06447453754421,
+ 15.634882705447112,
+ 14.481797762202698,
+ 13.284471427384528,
+ 11.740238570975679,
+ 10.924764361376234,
+ 8.267284288626145,
+ 7.696048908357509])
+
+#%%
+re = me/np.mean(test)*100
+    
+plt.plot(x,arnoud2, color = 'red', marker='o', label = 'ICA')
+plt.plot(x,relative_err/2,color = 'blue', marker = 'o', label = 'PCA')
+#plt.plot(x,re,color = 'blue', marker = 'o', label = 'PCA')
+plt.legend()
+plt.title("mean relative error PCA vs ICA")
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Reconstruction error in %(Mean relative error)")
+plt.xlim((1,12))
+
 
 
