@@ -190,35 +190,49 @@ def ShowComponents(AmountOfComponents, A):
         plt.imshow(Comp, cmap = plt.get_cmap('gray'))
         plt.show()
 
+def MeanError(test,rec):
+    M,N = test.shape
+    a = 0
+    for i in range(M):
+        for j in range(N):
+            a += abs(test[i][j] - rec[i][j])
+    return a/(M*N)
 
 def ErrorDifferentDimens(S, L,scaler, train_img, test_img, N, OrignalPlot):
-    mse = np.zeros(L-S)
-    ReconICAPlottable= []
+    mse = []
+    ME = []
     for i in range(L-S):
         print(S+i)
         ica, SourceICA, helperee , A = ApplyICA(S+i, scaler, train_img, test_img, N)
-        ReconICAPlottable.append(helperee)
         # PlotReconstructionOneNumber(7, OrignalPlot,ReconICAPlottable,Labels)
-        mse[i] = mean_squared_error(OrignalPlot.reshape(N,784),ReconICAPlottable[i].reshape(N,784))
+        mse.append(mean_squared_error(OrignalPlot.reshape(N,784),helperee.reshape(N,784)))
+        ME.append(MeanError(OrignalPlot.reshape(N,784),helperee.reshape(N,784)))
     
     plt.plot(mse)
     plt.xlabel("Dimensionality of latent space")
     plt.ylabel("Reconstruction error (MSE)")
     plt.xlim([S,L])
+    plt.show()
     
     
+    plt.plot(ME)
+    plt.xlabel("Dimensionality of latent space")
+    plt.ylabel("Reconstruction error (MSE)")
+    plt.xlim([S,L])
+    plt.show()
+    
 
 
 
 
-#%%
 datasplit = 1/7
 desired_dim=4
 
-#%%
 mnist_dataset = loadmnist()
-#%%
 train_img,test_img,OrignalPlot,Labels,scaler, N, D = loaddatasplit(mnist_dataset,datasplit)
+
+ErrorDifferentDimens(1, 13, scaler, train_img, test_img, int(datasplit*N), OrignalPlot)
+
 #%%
 ica,SourceICA, ReconICAPlottable, A = ApplyICA(desired_dim, scaler, train_img, test_img, int(datasplit*N))
 #%%
