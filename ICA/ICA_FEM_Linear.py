@@ -204,7 +204,7 @@ def create_vtu(para,filename):
     
 def CreateComponentFiles(A, desired_dim, Path = os.getcwd()):
     for i in range (desired_dim):
-        filename = Path + "VTUFiles/Components/Component_"+str(i+1)+".vtu"
+        filename = Path + "VTUFiles/Linear/Components/Component_"+str(i+1)+".vtu"
         DeleteFile(filename)
         create_vtu(A[:,i].reshape(1636,2),filename)
 
@@ -215,8 +215,8 @@ def CreateVTUOriganalRecon(bcs, test_folders, ReconICA, Path = os.getcwd()):
     Folder = test_folders["Folders"][bcs]
     
     
-    PathR = Path+"VTUFiles/Reconstruction/"+Folder
-    PathO = Path+"VTUFiles/Original/"+Folder
+    PathR = Path+"VTUFiles/Linear/Reconstruction/"+Folder
+    PathO = Path+"VTUFiles/Linear/Original/"+Folder
 
     if not os.path.exists(PathR):
         os.makedirs(PathR)
@@ -226,11 +226,11 @@ def CreateVTUOriganalRecon(bcs, test_folders, ReconICA, Path = os.getcwd()):
 
         
     for i in range(num_para):
-        DeleteFile(Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
-        DeleteFile(Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+        DeleteFile(Path+"VTUFiles/Linear/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        DeleteFile(Path+"VTUFiles/Linear/Original/"+Folder+"/para_"+str(i+1)+".vtu")
         rec_para, true_para = get_para(start_pos,i,ReconICA)
-        create_vtu(rec_para,Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
-        create_vtu(true_para,Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+        create_vtu(rec_para,Path+"VTUFiles/Linear/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+        create_vtu(true_para,Path+"VTUFiles/Linear/Original/"+Folder+"/para_"+str(i+1)+".vtu")
 
 
 def ChangingComponents(ComponentToChange, frames, AmountOfComponents, ica, Path):
@@ -239,14 +239,14 @@ def ChangingComponents(ComponentToChange, frames, AmountOfComponents, ica, Path)
     COMP[:,ComponentToChange] = L
     
     ReconCOMP = ica.inverse_transform(COMP)
-    PathC = Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)
+    PathC = Path+"VTUFiles/Linear/Components/ChangeComponent_"+str(ComponentToChange+1)
 
     if not os.path.exists(PathC):
         os.makedirs(PathC)
         
     for i in range(frames):
-         DeleteFile(Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
-         create_vtu(ReconCOMP[i],Path+"VTUFiles/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
+         DeleteFile(Path+"VTUFiles/Linear/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
+         create_vtu(ReconCOMP[i],Path+"VTUFiles/Linear/Components/ChangeComponent_"+str(ComponentToChange+1)+"/para_"+str(i+1)+".vtu")
     return ReconCOMP
 
 
@@ -280,7 +280,7 @@ def ApplyICA(desired_dim, train, test):
     # std_test = scaler.transform(test)
 
     
-    ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 200)
+    ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 1000)
     
     
     ica.fit(train)
@@ -294,19 +294,38 @@ def ApplyICA(desired_dim, train, test):
 
 
 #%% load data and apply pca
-filename = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/Data_nonlinear_new/"
+filename = "C:/Users/aglas/Local_Documents/GitHub/Final_Minor_Project/DataSet/Data_linear/"
 
 all_data, folder_names, start = load_all_data(filename)
+
+# #%%
+# Helpall_data = cp.copy(all_data)
+# Helpfoldernames = cp.copy(folder_names)
+# helpstart = cp.copy(start)
+
+#%%
+# all_data = cp.copy( Helpall_data)
+# folder_names = cp.copy( Helpfoldernames)
+# start = cp.copy( helpstart)
+
+#split data in train and test sample
+
+
+
+
+# split_point = start[950]
+# test_names = folder_names[950:]
+# train, test = np.split(all_data,[split_point])
 
 train,train_folders, test,test_folders = RandomTrainTestSplit(0.9, all_data, start,folder_names)
 
 #%%
 Path = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/TxtFiles/"
 
-trainfile = Path + "train.txt"
-testfile = Path +"test.txt"
-trainfoldersfile = Path +"trainfolders.txt"
-testfoldersfile = Path +"testfolders.txt"
+trainfile = Path + "trainlinear.txt"
+testfile = Path +"testlinear.txt"
+trainfoldersfile = Path +"trainfolderslinear.txt"
+testfoldersfile = Path +"testfolderslinear.txt"
 
 
 #%%
@@ -326,7 +345,7 @@ testfoldersfile = Path +"testfolders.txt"
 
 # json.dump(test_folders, open(testfoldersfile,'w'))
 
-
+# f.close()
 #%%
 train = np.loadtxt(trainfile)
 
@@ -336,9 +355,9 @@ train_folders = json.load(open(trainfoldersfile))
 
 test_folders = json.load(open(testfoldersfile))
 
-#%%
+ #%%
 # desired dimentionality in latent space
-desired_dim = 4
+desired_dim = 3
 
 ica, SourceICA, ReconICA, A, aa  = ApplyICA(desired_dim, train, test)
 
@@ -347,11 +366,13 @@ Path = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final 
 ##%%
 points, cells= GetPointsAndCells()
 
-#%% make new VTU files
+##%% make new VTU files
 ### Make Sure in ICA Folder
 
 CreateComponentFiles(A, desired_dim, Path)
     
+
+#%%
 for i in range(desired_dim):
     ChangingComponents(i, 50, desired_dim, ica, Path)
 
@@ -360,19 +381,26 @@ for i in range(desired_dim):
 
 bcs = 5
 
+# print(test_names[bcs])
+# num_para = start[951+bcs] - start[950+bcs]
+# print(num_para)
+# start_pos = start[950+bcs]-split_point
+# print(start_pos)
+
+# for i in range(50):
+#     DeleteFile("VTUFiles/Reconstruction/para_"+str(i+1)+".vtu", Path)
+#     DeleteFile("VTUFiles/Orignal/para_"+str(i+1)+".vtu", Path)
+    # rec_para, true_para = get_para(start_pos,i,ReconICA)
+    # create_vtu(rec_para,"VTUFiles/Reconstruction/para_"+str(i+1)+".vtu")
+    # create_vtu(true_para,"VTUFiles/Original/para_"+str(i+1)+".vtu")
+
+
 
 CreateVTUOriganalRecon(bcs, test_folders, ReconICA,Path)
 
 
+   
 #%% Errors
-train = np.loadtxt(trainfile)
-
-test = np.loadtxt(testfile)
-
-train_folders = json.load(open(trainfoldersfile))
-
-test_folders = json.load(open(testfoldersfile))
-#%%
 def MeanError(test,rec):
     M,N = test.shape
     a = 0
@@ -381,36 +409,22 @@ def MeanError(test,rec):
             a += abs(test[i][j] - rec[i][j])
     return a/(M*N)
     
-def MeanRelativeError(test,rec):
-    M,N = test.shape
-    a = 0
-    for i in range(M):
-        for j in range(N):
-            if test[i][j] > 10e-10:
-                a += abs((abs(test[i][j] - rec[i][j]))/test[i][j])
-    return (a/(M*N)) * 100
-
-
 Dims = 13
 
 mse = []
 ME = []
-MRE = []
 
 for Dim in range(Dims):
     print(Dim+1)
     icani, SourceICAni, rec, Ani, aani  = ApplyICA(Dim+1, train, test)
-    print("ICA Done")
     mse.append(mean_squared_error(test,rec))
     ME.append(MeanError(test,rec))
-    MRE.append(MeanRelativeError(test,rec))
 
 
-plt.plot(MRE)
+plt.plot(mse)
 plt.xlabel("Dimensionality of latent space")
-plt.ylabel("Relative Error (in %)")
+plt.ylabel("Reconstruction error (MSE)")
 plt.xlim([1,12])
 
-#%%
-for i in range(len(mse)):
-    print("Error for ",i+1," components: ",ME[i] )
+
+
