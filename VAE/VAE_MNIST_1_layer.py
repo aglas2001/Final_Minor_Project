@@ -186,6 +186,14 @@ optimizer = optim.Adam(VAE.parameters(), lr=learning_rate)
 retrain = input("Retrain the model? (y/n)\n")
 
 if retrain == "y":
+    if not os.path.isdir("./Models_test"):
+        os.mkdir("./Models_test")
+    if not os.path.isdir("./Loss_txt"):
+        os.mkdir("./Loss_txt")
+    if not os.path.isdir("./Figures"):
+        os.mkdir("./Figures")
+
+if retrain == "y":
     num_epochs = 100
 
     val_loss_epochs = np.zeros(num_epochs)
