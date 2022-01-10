@@ -185,7 +185,7 @@ optimizer = optim.Adam(VAE.parameters(), lr=learning_rate)
 
 retrain = input("Retrain the model? (y/n)\n")
 
-if (not os.path.isfile("./Models_sigmoid/VAE-512_0.pth")) or retrain == "y":
+if retrain == "y":
     num_epochs = 100
 
     val_loss_epochs = np.zeros(num_epochs)
