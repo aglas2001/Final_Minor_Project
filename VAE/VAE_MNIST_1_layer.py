@@ -228,11 +228,11 @@ if retrain == "y":
 
 
 else:
-    VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}_5.pth".format(l1)))
+    VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}_{}.pth".format(l1, lamda)))
 
 
 
-VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}_5.pth".format(l1)))
+VAE.load_state_dict(torch.load("./Models_sigmoid/VAE-{}_{}.pth".format(l1, lamda)))
 
 
 N=5
