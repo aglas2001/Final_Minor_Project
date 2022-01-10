@@ -16,6 +16,8 @@ from torchvision.utils import save_image
 
 from data import DisplacementDataset
 
+import meshio
+
 
 # In[2]:
 
@@ -28,13 +30,20 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 batch_size = 128
 
+mean = -0.0002
+std = 0.0008
+normalize_scaling_factor = 0.0035292476 + 0.00306241
+offset = -0.00306241
+
 training_data = DisplacementDataset(
    data_folder="../../Dataset/Data_nonlinear_new//",
    train=True,
    ratio=0.2,
    size=0.1,
    seed=0,
-   tensor=True
+   tensor=True,
+   scaling_factor=normalize_scaling_factor,
+   offset=offset
 )
 
 validation_data = DisplacementDataset(
@@ -43,13 +52,10 @@ validation_data = DisplacementDataset(
    ratio=0.2,
    size=0.1,
    seed=0,
-   tensor=True
+   tensor=True,
+   scaling_factor=normalize_scaling_factor,
+   offset=offset
 )
-
-#label_indices_training = training_data.targets == 7
-#label_indices_validation = validation_data.targets == 7
-#training_data.data, training_data.targets = training_data.data[label_indices_training], training_data.targets[label_indices_training]
-#validation_data.data, validation_data.targets = validation_data.data[label_indices_validation], validation_data.targets[label_indices_validation]
 
 # Create data loaders.
 train_loader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
@@ -58,9 +64,9 @@ val_loader = DataLoader(validation_data, batch_size=batch_size, shuffle=False)
 print(len(training_data))
 print(len(validation_data))
 
-checking_data = next(iter(train_loader))
+checking_data = next(iter(val_loader))
 print(f"Feature batch shape: {checking_data.size()}")
-
+print(checking_data)
 
 # In[28]:
 
@@ -71,20 +77,22 @@ class VariationalEncoder(nn.Module):
     def __init__(self, latent_dims):
         super(VariationalEncoder, self).__init__()
         self.linear1 = nn.Linear(3272, l1)
-        self.linear2 = nn.Linear(l1, latent_dimensions)
+        #self.linear2 = nn.Linear(l1, l2)
         self.linear3 = nn.Linear(l1, latent_dimensions)
+        self.linear4 = nn.Linear(l1, latent_dimensions)
 
 
         self.N = torch.distributions.Normal(0, 1)
         self.kl = 0
 
     def forward(self, x):
-        x = torch.flatten(x, start_dim=1)
+        #x = torch.flatten(x, start_dim=1)
+        #x = self.linear1(x)
         x = torch.sigmoid(self.linear1(x))
 
         #reparametrization
-        mu =  (self.linear2(x))
-        log_var = (self.linear3(x))
+        mu =  (self.linear3(x))
+        log_var = (self.linear4(x))
         sigma = torch.exp(log_var / 2)
 
         q = torch.distributions.Normal(mu, sigma)
@@ -98,11 +106,13 @@ class Decoder(nn.Module):
     def __init__(self, latent_dims):
         super(Decoder, self).__init__()
         self.linear1 = nn.Linear(latent_dimensions, l1)
-        self.linear2 = nn.Linear(l1, 3272)
+        #self.linear2 = nn.Linear(l2, l1)
+        self.linear3 = nn.Linear(l1, 3272)
 
     def forward(self, z):
+        #z = torch.sigmoid(self.linear1(z))
         z = torch.sigmoid(self.linear1(z))
-        z = (self.linear2(z))
+        z = (self.linear3(z))
 
 
         return z
@@ -188,10 +198,11 @@ def weight_reset(m):
 
 #layer sizes
 l1 = 2250
+l2 = 750
 latent_dimensions = 4
 n = 1
 
-lamda = 0.01
+lamda = 0.001
 
 
 VAE = VariationalAutoencoder(latent_dimensions).to(device)
@@ -213,15 +224,15 @@ if retrain == "y":
     if not os.path.isdir("./Figures"):
         os.mkdir("./Figures")
 
-if (not os.path.isfile("./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, lamda))) or retrain == "y":
-    num_epochs = 50
+if (not os.path.isfile("./Models_test/VAE-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, lamda))) or retrain == "y":
+    num_epochs = 30
 
     for epoch in range(num_epochs):
         train_loss, MSE_t, KL_t = train(VAE, train_loader, optimizer, lamda)
         val_loss, MSE_v, KL_v = validate(VAE, val_loader, lamda)
         print("epoch = {}, train_loss = {:.6f}, val_loss = {:.6f}".format(epoch, train_loss, val_loss))
 
-    torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, lamda))
+    torch.save(VAE.state_dict(), "./Models_test/VAE-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, lamda))
 
     print('\n lamda = {} \t train loss {:.6f} \t val loss {:.6f} '.format(lamda, train_loss, val_loss))
     print(' lamda = {} \t MSE train {:.6f} \t KL train {:.6f} '.format(lamda, MSE_t, KL_t))
@@ -236,14 +247,14 @@ if (not os.path.isfile("./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions
     #resetting weights of Neural network
     VAE.apply(weight_reset)
 
-    np.savetxt("Loss_txt/{}-{}_{}.txt".format(latent_dimensions, l1, lamda), (lamda, Recon_loss_t, Recon_loss_v, KL_loss_t, KL_loss_v), fmt = "%1.6f", delimiter = ", ")
+    #np.savetxt("Loss_txt/{}-{}_{}.txt".format(latent_dimensions, l1, lamda), (lamda, Recon_loss_t, Recon_loss_v, KL_loss_t, KL_loss_v), fmt = "%1.6f", delimiter = ", ")
 
 else:
-    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, lamda)))
+    VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, lamda)))
+    print("./Models_test/VAE-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, lamda))
 
 
-
-VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}_{}.pth".format(latent_dimensions, l1, lamda)))
+VAE.load_state_dict(torch.load("./Models_test/VAE-{}-{}-{}_{}.pth".format(latent_dimensions, l1, l2, lamda)))
 
 
 
@@ -321,10 +332,15 @@ def VAE_VTU(data):
         z_arr = z.to("cpu").detach().numpy()
         print(z_arr)
         result  = VAE.decoder(z)
+        result = result.to("cpu").detach().numpy()
 
+        np.savetxt("test_data_input.txt", data)
+        np.savetxt("test_data_output.txt", result)
+
+        create_vtu(data, "input_test.vtu")
         create_vtu(result, "test.vtu")
 
-#VAE_VTU(checking_data[0])
+VAE_VTU(checking_data[0])
 
 
 
