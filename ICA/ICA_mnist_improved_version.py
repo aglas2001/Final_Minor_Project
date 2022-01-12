@@ -15,6 +15,9 @@ from matplotlib.widgets import Slider
 import numpy as np
 import math as m
 import copy
+import matplotlib.animation as animation
+import os
+
 
 
 
@@ -82,9 +85,12 @@ def loaddataOneNumber(mnist_dataset, split, Number):
     # Fit on training set only. Computes the mean and std to be used for later scaling.
     scaler = StandardScaler()
     scaler.fit(train_img)
-
+    
+    data = scaler.transform(train_img)
+    test_data = scaler.transform(test_img)
+    
     # Applies standardization to both the training set and the test set.
-    return train_img,test_img,OrignalPlot,scaler, NewN, D, SplitPoint
+    return data,test_data,OrignalPlot,scaler, NewN, D, SplitPoint
 
 
 
@@ -160,8 +166,19 @@ def PlotComponents(AmountOfComponents, A):
         titlestr = "Component " + str(j)
         axs[j].set_title(titlestr)
 
+def ChangingComponent(AmountOfComponents, ComponentToChange, N, ica, value, scaler):
+    COMP = np.zeros((1,AmountOfComponents))
+    COMP[0][ComponentToChange-1] = value
+        
+    ReconICAComp = ica.inverse_transform(COMP)
+    ReconICAComp = scaler.inverse_transform(ReconICAComp)
+    ReconICACompPlottable = np.reshape(ReconICAComp,(28,28))
 
-def ChangeComponents(AmountOfComponents, ComponentToChange,Changes, N, ica, values):
+    # fig, axs = plt.subplots(1,1)
+    # axs[0].imshow(ReconICACompPlottable, cmap = plt.get_cmap('gray'))
+    return ReconICACompPlottable
+
+def ChangeComponents(AmountOfComponents, ComponentToChange,Changes, N, ica, values,scaler):
     COMP = np.zeros((Changes,AmountOfComponents))
     for i in range(Changes):
         COMP[i][ComponentToChange-1] = values[i]
@@ -170,7 +187,6 @@ def ChangeComponents(AmountOfComponents, ComponentToChange,Changes, N, ica, valu
     ReconICAComp = scaler.inverse_transform(ReconICAComp)
     ReconICACompPlottable = np.reshape(ReconICAComp,(Changes,28,28))
    
-    print(ReconICACompPlottable.shape)
     
     titlestr = "Changing Component " + str(ComponentToChange)
     fig, axs = plt.subplots((Changes-1)//4 + 1, 4)
@@ -181,7 +197,6 @@ def ChangeComponents(AmountOfComponents, ComponentToChange,Changes, N, ica, valu
         axs[i].imshow(ReconICACompPlottable[i], cmap = plt.get_cmap('gray'))
         axs[i].set_title(titlstr)
 
-    #fig.show()
 
 
 def ShowComponents(AmountOfComponents, A):
@@ -217,21 +232,27 @@ def ErrorDifferentDimens(S, L,scaler, train_img, test_img, N, OrignalPlot):
     
     plt.plot(ME)
     plt.xlabel("Dimensionality of latent space")
-    plt.ylabel("Reconstruction error (MSE)")
+    plt.ylabel("Reconstruction error (ME)")
     plt.xlim([S,L])
     plt.show()
+    return mse, ME
     
 
+def DeleteFile(filename):
+    try:
+        os.remove(filename)
+        print("File Removed")
+    except:
+        print("File doesn't exist")
 
-
-
+#%%
 datasplit = 1/7
 desired_dim=4
 
 mnist_dataset = loadmnist()
+#%%
 train_img,test_img,OrignalPlot,Labels,scaler, N, D = loaddatasplit(mnist_dataset,datasplit)
 
-ErrorDifferentDimens(1, 13, scaler, train_img, test_img, int(datasplit*N), OrignalPlot)
 
 #%%
 ica,SourceICA, ReconICAPlottable, A = ApplyICA(desired_dim, scaler, train_img, test_img, int(datasplit*N))
@@ -254,16 +275,19 @@ Number = 7
 train_img7 ,test_img7 ,OrignalPlot7 ,scaler7 , N7 , D7, SplitPoint7  =  loaddataOneNumber(mnist_dataset, datasplit, 7)
 ica7,SourceICA7, ReconICAPlottable7, A7 = ApplyICA(desired_dim, scaler7, train_img7, test_img7, N7-SplitPoint7)
 
+MSErrors, MErrors = ErrorDifferentDimens(1, 13, scaler7, train_img7, test_img7, int(datasplit*N7)+1, OrignalPlot7)
+
+
 #%%
 # PlotReconstructionICAOneN(20, OrignalPlot7,ReconICAPlottable7,7)
 
 # PlotComponents(desired_dim, A7)
 values = [-0.02, -0.015, -0.01, -0.005]
 values2 = [ 0 ,0.005 ,0.01 ,0.015]
-ChangeComponents(desired_dim, 1,len(values), N7, ica7, values)
-ChangeComponents(desired_dim, 1,len(values2), N7, ica7, values2)
+ChangeComponents(desired_dim, 1,len(values), N7, ica7, values,scaler7)
+ChangeComponents(desired_dim, 1,len(values2), N7, ica7, values2,scaler7)
 
-
+asd = ChangingComponent(desired_dim, 1, N7, ica7, -0.01,scaler7)
 #%%
 
 
@@ -304,3 +328,47 @@ z1_slider.on_changed(update)
 z2_slider.on_changed(update)
 z3_slider.on_changed(update)
 z4_slider.on_changed(update)
+
+#%%
+ComponentToChange = 4
+NumberOfSteps = 400
+start = -0.05
+end = 0.05
+
+
+a1 = np.arange(0,start, -(end-start)/(NumberOfSteps/4))
+a2 = np.arange(start,end, (end-start)/(NumberOfSteps/4))
+a3 = np.arange(end,0, -(end-start)/(NumberOfSteps/4))
+a0 = np.array([0])
+a = np.concatenate([a1,a2,a3,a0])
+
+plt.ion()
+fig = plt.figure(3)
+plt.clf()
+t = -0.05
+u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, ica7, t,scaler7))
+
+#figure initialization
+img = plt.imshow(u, cmap=plt.get_cmap('gray'))
+tlt = plt.title("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
+
+count = 0
+
+def animate(frame):
+    global t, u, count
+    t = a[count]
+    count += 1
+    u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, ica7, t, scaler7))
+    img.set_array(u)
+    tlt.set_text("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
+    return img
+
+anim = animation.FuncAnimation(fig,animate,NumberOfSteps,interval=10,repeat=False)
+
+
+filename = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/Mnist/Videos Slider/Animation2-ICA-C" +str(ComponentToChange)+ ".gif"
+
+# DeleteFile(filename)
+
+writergif = animation.PillowWriter(fps=30) 
+anim.save(filename, writer=writergif)
