@@ -25,6 +25,31 @@ def update_plot(val):
         plot.set_data(reconstruct(z_arr))
         fig.canvas.draw_idle()
 
+def apply_pca(train, test, desired_dim):
+    
+    scaler = StandardScaler()
+    scaler.fit(train)
+    
+    #standardize data
+    std_data = scaler.transform(train)
+    std_test = scaler.transform(test)
+    
+    pca = PCA(n_components=desired_dim)
+    pca.fit(std_data)
+    latent = pca.transform(std_test)
+    pc = scaler.inverse_transform(pca.components_)
+    rec_data = scaler.inverse_transform(pca.inverse_transform(latent))
+    
+    return pc, latent, rec_data
+
+def MeanRelativeError(test,rec):
+    M,N = test.shape
+    a = 0
+    for i in range(M):
+        for j in range(N):
+            if abs(test[i][j]) > 10e-10:
+                a += abs((test[i][j] - rec[i][j])/test[i][j])
+    return a/(M*N) * 100
 #%%
 # Optional way to get mnist, but now it's type is tuple
 from keras.datasets import mnist
@@ -129,3 +154,21 @@ z1_slider.on_changed(update_plot)
 z2_slider.on_changed(update_plot)
 z3_slider.on_changed(update_plot)
 z4_slider.on_changed(update_plot)
+
+#%% MSE:
+MSerror = np.zeros(13)
+for i in range(13):
+    _, _, rec = apply_pca(data, test_data, i+1)
+    MSE = mean_squared_error(test_data,rec)
+    MSerror[i] = MSE
+    
+#%%
+x = np.arange(1,14,1)
+#plt.plot(x,arnoud2, color = 'red', marker='o', label = 'ICA')
+plt.plot(x,MSerror,color = 'blue', marker = 'o', label = 'PCA')
+#plt.plot(x,re,color = 'blue', marker = 'o', label = 'PCA')
+plt.legend()
+plt.title("Mean Squared Error PCA vs ICA")
+plt.xlabel("Dimensionality of latent space")
+plt.ylabel("Mean Squared Error")
+plt.xlim((1,12))
