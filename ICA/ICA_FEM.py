@@ -375,6 +375,14 @@ train_folders = json.load(open(trainfoldersfile))
 
 test_folders = json.load(open(testfoldersfile))
 #%%
+def MSE(test,rec):
+    M,N = test.shape
+    a = 0
+    for i in range(M):
+        for j in range(N):
+            a += (test[i][j] - rec[i][j])**2
+    return np.sqrt(a/(M*N))  
+
 def MeanError(test,rec):
     M,N = test.shape
     a = 0

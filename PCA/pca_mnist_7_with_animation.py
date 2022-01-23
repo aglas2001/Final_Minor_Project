@@ -66,7 +66,7 @@ labels = test_y
 
 # Determine how much variance the pc should describe and apply pca:
 pca = PCA(n_components=desired_dim)
-pca.fit(data)
+pca.fit(train_img7)
 latent = pca.transform(test_data)
 
 print("dimensionality in latent space:", latent.shape)
@@ -144,70 +144,70 @@ z4_slider.on_changed(update_plot)
 
 #%%
 
-# def ChangingComponent(AmountOfComponents, ComponentToChange, N, pca, value, scaler):
+def ChangingComponent(AmountOfComponents, ComponentToChange, N, pca, value, scaler):
     
     
-#     COMP = np.zeros((1,AmountOfComponents))
-#     COMP[0][ComponentToChange-1] = value
+    COMP = np.zeros((1,AmountOfComponents))
+    COMP[0][ComponentToChange-1] = value
         
    
-#     rec = scaler.inverse_transform(pca.inverse_transform(COMP))
-#     rec = np.reshape(rec,(28,28))
-#     return rec
+    rec = scaler.inverse_transform(pca.inverse_transform(COMP))
+    rec = np.reshape(rec,(28,28))
+    return rec
 
-# def DeleteFile(filename):
-#     try:
-#         os.remove(filename)
-#         print("File Removed")
-#     except:
-#         print("File doesn't exist")
+def DeleteFile(filename):
+    try:
+        os.remove(filename)
+        print("File Removed")
+    except:
+        print("File doesn't exist")
 
-# desired_dim = 4
+desired_dim = 4
 
-# ComponentToChange = 4
-# NumberOfSteps = 400
-# start = -500
-# end = 500
-
-
-
-# a1 = np.arange(0,start, -(end-start)/(NumberOfSteps/4))
-# a2 = np.arange(start,end, (end-start)/(NumberOfSteps/4))
-# a3 = np.arange(end,0, -(end-start)/(NumberOfSteps/4))
-# a0 = np.array([0])
-# a = np.concatenate([a1,a2,a3,a0])
-
-# plt.ion()
-# fig = plt.figure(3)
-# plt.clf()
-# t = start
-# z_arr = np.zeros(desired_dim)
-# u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, pca, t,scaler7))
-
-# #figure initialization
-# img = plt.imshow(u, cmap=plt.get_cmap('gray'))
-# tlt = plt.title("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
-
-# count = 0
-
-# def animate(frame):
-#     global t, u, count
-#     t = a[count]
-#     count += 1
-#     z_arr = np.zeros(desired_dim)
-#     z_arr[ComponentToChange-1] = t
-#     u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, pca, t,scaler7))
-#     img.set_array(u)
-#     aa = np.round(t/10000,2)
-#     tlt.set_text("Influence on Component "+ str(ComponentToChange) + ": "+str(aa))
-#     return img
-
-# anim = animation.FuncAnimation(fig,animate,NumberOfSteps,interval=10,repeat=False)
+ComponentToChange = 2
+NumberOfSteps = 400
+start = -500
+end = 500
 
 
-# filename = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/Mnist/Videos Slider/Animation-PCA-C" +str(ComponentToChange)+ ".gif"
 
-# DeleteFile(filename)
+a1 = np.arange(0,start, -(end-start)/(NumberOfSteps/4))
+a2 = np.arange(start,end, (end-start)/(NumberOfSteps/4))
+a3 = np.arange(end,0, -(end-start)/(NumberOfSteps/4))
+a0 = np.array([0])
+a = np.concatenate([a1,a2,a3,a0])
 
-# writergif = animation.PillowWriter(fps=30) 
-# anim.save(filename, writer=writergif)
+plt.ion()
+fig = plt.figure(3)
+plt.clf()
+t = start
+z_arr = np.zeros(desired_dim)
+u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, pca, t,scaler7))
+
+#figure initialization
+img = plt.imshow(u, cmap=plt.get_cmap('gray'))
+tlt = plt.title("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
+
+count = 0
+
+def animate(frame):
+    global t, u, count
+    t = a[count]
+    count += 1
+    z_arr = np.zeros(desired_dim)
+    z_arr[ComponentToChange-1] = t
+    u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, pca, t,scaler7))
+    img.set_array(u)
+    aa = np.round(t/10000,2)
+    tlt.set_text("Influence on Component "+ str(ComponentToChange) + ": "+str(aa))
+    return img
+
+anim = animation.FuncAnimation(fig,animate,NumberOfSteps,interval=10,repeat=False)
+
+
+filename = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/Mnist/Videos Slider/Animation-PCA-C" +str(ComponentToChange)+ ".gif"
+
+DeleteFile(filename)
+
+writergif = animation.PillowWriter(fps=30) 
+anim.save(filename, writer=writergif)

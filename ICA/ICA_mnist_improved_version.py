@@ -83,27 +83,26 @@ def loaddataOneNumber(mnist_dataset, split, Number):
     #preserve orginial values train_img for plot later:
     OrignalPlot = np.reshape(test_img,(NewN - SplitPoint,28,28))
     # Fit on training set only. Computes the mean and std to be used for later scaling.
+   
+    # Applies standardization to both the training set and the test set.
+    return train_img,test_img,OrignalPlot, NewN, D, SplitPoint
+
+
+
+
+
+
+
+def ApplyICA(desired_dim, train_img, test_img, N):
+    ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 1000)
     scaler = StandardScaler()
     scaler.fit(train_img)
     
     data = scaler.transform(train_img)
     test_data = scaler.transform(test_img)
     
-    # Applies standardization to both the training set and the test set.
-    return data,test_data,OrignalPlot,scaler, NewN, D, SplitPoint
-
-
-
-
-
-
-
-def ApplyICA(desired_dim, scaler, train_img, test_img, N):
-    ica = FastICA(n_components=desired_dim,random_state=0, max_iter = 1000)
-    
-    
-    ica.fit(train_img)
-    SourceICA = ica.transform(test_img)
+    ica.fit(data)
+    SourceICA = ica.transform(test_data)
 
         
     ReconICA = ica.inverse_transform(SourceICA)
@@ -111,7 +110,7 @@ def ApplyICA(desired_dim, scaler, train_img, test_img, N):
     ReconICAPlottable = np.reshape(ReconICA,(N,28,28))
         
     A = ica.mixing_  # Get estimated mixing matrix
-    return ica,SourceICA, ReconICAPlottable, A
+    return ica,SourceICA, ReconICAPlottable, A, scaler
     
 
 def ReconstructionError(plottable,recpca_plottable,recica_plottable,labels):
@@ -119,14 +118,17 @@ def ReconstructionError(plottable,recpca_plottable,recica_plottable,labels):
     nrmseICA = rmseICA/m.sqrt(np.mean(plottable**2))
     return rmseICA,nrmseICA
 
-def PlotReconstructionOneNumber(NumbertoPlot, plottable,ReconICAPlottable,labels):
+def PlotReconstructionOneNumber(NumbertoPlot, plottable,ReconICAPlottable,labels, kmax):
     numberstr = str(NumbertoPlot)
     i = 0
-    while labels[i] != numberstr:
+    k = 0
+    while labels[i] != numberstr and k < kmax:
         i+=1
-    titlestr = "Reconstructing " + str(labels[i])+ " using ICA"
+        if labels[i] == numberstr:
+            k+=1
+    # titlestr = "Reconstructing " + str(labels[i])+ " using ICA"
     fig, axs = plt.subplots(1, 2)
-    fig.suptitle(titlestr, fontsize=16)
+    # fig.suptitle(titlestr, fontsize=16)
     axs[0].imshow(plottable[i], cmap = plt.get_cmap('gray'))
     axs[0].set_title("Original")
                 
@@ -139,13 +141,13 @@ def PlotReconstructionOneNumber(NumbertoPlot, plottable,ReconICAPlottable,labels
     
 def PlotReconstructionMultiple(AmountOfPlots, plottable,ReconICAPlottable,labels):
     for i in range(AmountOfPlots):
-        titlestr = "Reconstructing " + str(labels[i])+ " using ICA"
+        # titlestr = "Reconstructing " + str(labels[i])+ " using ICA"
         fig, axs = plt.subplots(1, 2)
-        fig.suptitle(titlestr, fontsize=16)
+        # fig.suptitle(titlestr, fontsize=16)
         axs[0].imshow(plottable[i], cmap = plt.get_cmap('gray'))
-        axs[0].set_title(labels[i])
+        axs[0].set_title("Original")
         axs[1].imshow(ReconICAPlottable[i], cmap=plt.get_cmap('gray'))
-        axs[1].set_title("ICA recon")    
+        axs[1].set_title("Reconstruction")    
 
 def PlotReconstructionICAOneN(AmountOfPlots, plottable,ReconICAPlottable,Number):
     for i in range(AmountOfPlots):
@@ -159,11 +161,11 @@ def PlotReconstructionICAOneN(AmountOfPlots, plottable,ReconICAPlottable,Number)
 
 def PlotComponents(AmountOfComponents, A):
     fig, axs = plt.subplots(1, AmountOfComponents)
-    fig.suptitle("Components", fontsize=16)
+    # fig.suptitle("Components", fontsize=16)
     for j in range(AmountOfComponents):
         Comp = np.reshape(A[:,j],(28,28))
         axs[j].imshow(Comp, cmap = plt.get_cmap('gray'))
-        titlestr = "Component " + str(j)
+        titlestr = "Component " + str(j+1)
         axs[j].set_title(titlestr)
 
 def ChangingComponent(AmountOfComponents, ComponentToChange, N, ica, value, scaler):
@@ -194,8 +196,8 @@ def ChangeComponents(AmountOfComponents, ComponentToChange,Changes, N, ica, valu
     
     for i in range(Changes):
         titlstr = "Comp = " + str(values[i])
-        axs[i].imshow(ReconICACompPlottable[i], cmap = plt.get_cmap('gray'))
-        axs[i].set_title(titlstr)
+        axs[i//4][i%4].imshow(ReconICACompPlottable[i], cmap = plt.get_cmap('gray'))
+        axs[i//4][i%4].set_title(titlstr)
 
 
 
@@ -213,16 +215,27 @@ def MeanError(test,rec):
             a += abs(test[i][j] - rec[i][j])
     return a/(M*N)
 
+
+def MeanRelativeError(test,rec):
+    M,N = test.shape
+    a = 0
+    for i in range(M):
+        for j in range(N):
+            if abs(test[i][j]) > 10e-10:
+                a += abs((abs(test[i][j] - rec[i][j]))/test[i][j])
+    return (a/(M*N)) * 100
+
 def ErrorDifferentDimens(S, L,scaler, train_img, test_img, N, OrignalPlot):
     mse = []
     ME = []
+    MRE = []
     for i in range(L-S):
         print(S+i)
-        ica, SourceICA, helperee , A = ApplyICA(S+i, scaler, train_img, test_img, N)
+        ica, SourceICA, recon , A = ApplyICA(S+i, scaler, train_img, test_img, N)
         # PlotReconstructionOneNumber(7, OrignalPlot,ReconICAPlottable,Labels)
-        mse.append(mean_squared_error(OrignalPlot.reshape(N,784),helperee.reshape(N,784)))
-        ME.append(MeanError(OrignalPlot.reshape(N,784),helperee.reshape(N,784)))
-    
+        mse.append(mean_squared_error(OrignalPlot.reshape(N,784),recon.reshape(N,784)))
+        ME.append(MeanError(OrignalPlot.reshape(N,784),recon.reshape(N,784)))
+        MRE.append(MeanRelativeError(OrignalPlot.reshape(N,784),recon.reshape(N,784)))
     plt.plot(mse)
     plt.xlabel("Dimensionality of latent space")
     plt.ylabel("Reconstruction error (MSE)")
@@ -235,7 +248,13 @@ def ErrorDifferentDimens(S, L,scaler, train_img, test_img, N, OrignalPlot):
     plt.ylabel("Reconstruction error (ME)")
     plt.xlim([S,L])
     plt.show()
-    return mse, ME
+    
+    plt.plot(MRE)
+    plt.xlabel("Dimensionality of latent space")
+    plt.ylabel("Reconstruction error (MRE)")
+    plt.xlim([S,L])
+    plt.show()
+    return mse, ME, MRE, recon
     
 
 def DeleteFile(filename):
@@ -255,12 +274,12 @@ train_img,test_img,OrignalPlot,Labels,scaler, N, D = loaddatasplit(mnist_dataset
 
 
 #%%
-ica,SourceICA, ReconICAPlottable, A = ApplyICA(desired_dim, scaler, train_img, test_img, int(datasplit*N))
+ica,SourceICA, ReconICAPlottable, A, scalar = ApplyICA(desired_dim, train_img, test_img, int(datasplit*N))
 #%%
-PlotReconstructionOneNumber(3, OrignalPlot,ReconICAPlottable,Labels)
-PlotReconstructionOneNumber(7, OrignalPlot,ReconICAPlottable,Labels)
+for i in range(10):
+    PlotReconstructionOneNumber(i, OrignalPlot,ReconICAPlottable,Labels,3)
 #%%
-PlotReconstructionMultiple(10, OrignalPlot,ReconICAPlottable,Labels)
+PlotReconstructionMultiple(20, OrignalPlot7,ReconICAPlottable7,Labels)
 #%%
 PlotComponents(desired_dim, A)
 #%%
@@ -272,20 +291,20 @@ ErrorDifferentDimens(1, 13, scaler, train_img, test_img, int(datasplit*N), Orign
 
 #%% Only 7's
 Number = 7
-train_img7 ,test_img7 ,OrignalPlot7 ,scaler7 , N7 , D7, SplitPoint7  =  loaddataOneNumber(mnist_dataset, datasplit, 7)
-ica7,SourceICA7, ReconICAPlottable7, A7 = ApplyICA(desired_dim, scaler7, train_img7, test_img7, N7-SplitPoint7)
-
-MSErrors, MErrors = ErrorDifferentDimens(1, 13, scaler7, train_img7, test_img7, int(datasplit*N7)+1, OrignalPlot7)
-
+train_img7 ,test_img7 ,OrignalPlot7 , N7 , D7, SplitPoint7  =  loaddataOneNumber(mnist_dataset, datasplit, 7)
+ica7,SourceICA7, ReconICAPlottable7, A7, scaler7 = ApplyICA(desired_dim, train_img7, test_img7, N7-SplitPoint7)
+#%%
+MSErrors, MErrors, MRE, recon = ErrorDifferentDimens(1, 17, scaler7, train_img7, test_img7, int(datasplit*N7)+1, OrignalPlot7)
 
 #%%
 # PlotReconstructionICAOneN(20, OrignalPlot7,ReconICAPlottable7,7)
 
 # PlotComponents(desired_dim, A7)
-values = [-0.02, -0.015, -0.01, -0.005]
-values2 = [ 0 ,0.005 ,0.01 ,0.015]
-ChangeComponents(desired_dim, 1,len(values), N7, ica7, values,scaler7)
-ChangeComponents(desired_dim, 1,len(values2), N7, ica7, values2,scaler7)
+values = [-0.02, -0.015, -0.01, -0.005, 0 ,0.005 ,0.01 ,0.015]
+# values2 = [ 0 ,0.005 ,0.01 ,0.015]
+for i in range(4):
+    ChangeComponents(desired_dim, i+1,len(values), N7, ica7, values,scaler7)
+# ChangeComponents(desired_dim, 1,len(values2), N7, ica7, values2,scaler7)
 
 asd = ChangingComponent(desired_dim, 1, N7, ica7, -0.01,scaler7)
 #%%
@@ -330,7 +349,7 @@ z3_slider.on_changed(update)
 z4_slider.on_changed(update)
 
 #%%
-ComponentToChange = 4
+ComponentToChange = 1
 NumberOfSteps = 400
 start = -0.05
 end = 0.05
@@ -347,18 +366,21 @@ fig = plt.figure(3)
 plt.clf()
 t = -0.05
 u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, ica7, t,scaler7))
-
+u = abs(u)
 #figure initialization
 img = plt.imshow(u, cmap=plt.get_cmap('gray'))
 tlt = plt.title("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
 
 count = 0
+A,B = u.shape
+
 
 def animate(frame):
     global t, u, count
     t = a[count]
     count += 1
     u = np.copy(ChangingComponent(desired_dim, ComponentToChange, N7, ica7, t, scaler7))
+    u = abs(u)
     img.set_array(u)
     tlt.set_text("Influence on Component "+ str(ComponentToChange) + ": "+str(np.round(t,2)))
     return img
