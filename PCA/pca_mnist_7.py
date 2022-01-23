@@ -50,10 +50,36 @@ def MeanRelativeError(test,rec):
             if abs(test[i][j]) > 10e-10:
                 a += abs((test[i][j] - rec[i][j])/test[i][j])
     return a/(M*N) * 100
+
+
 #%%
 # Optional way to get mnist, but now it's type is tuple
 from keras.datasets import mnist
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+#%%
+#Loading DATA
+# from torchvision import datasets
+# import torchvision.transforms as transforms
+# transform = transforms.Compose([transforms.ToTensor(),])
+# training_data = datasets.MNIST(
+#     root="data_train",
+#     train=True,
+#     download=True,
+#     transform=transform,
+# )
+
+# # Download test data from open datasets.
+# validation_data = datasets.MNIST(
+#     root="data_val",
+#     train=False,
+#     download=True,
+#     transform=transform,
+# )
+
+# train_X = training_data[0][0].squeeze().numpy()
+
+#%%
 
 train_filter = np.where(train_y == 7)
 test_filter = np.where(test_y == 7)
@@ -69,7 +95,7 @@ scaler = StandardScaler()
 
 scaler.fit(train_X)
 
-#standardize data
+# #standardize data
 data = scaler.transform(train_X)
 test_data = scaler.transform(test_X)
 
@@ -124,7 +150,7 @@ for i in range(9,15):
 #%%
 fig, axs = plt.subplots(2,4)
 z = latent[1]
-add = np.array([0,0,5,0])
+add = np.array([0,0,3,0])
 for i in range(desired_dim):
     axs[0,i].imshow(pc_plottable[i],cmap='gist_gray')
     axs[1,i].imshow(reconstruct(z + i * add),cmap='gist_gray')
@@ -156,19 +182,83 @@ z3_slider.on_changed(update_plot)
 z4_slider.on_changed(update_plot)
 
 #%% MSE:
-MSerror = np.zeros(13)
-for i in range(13):
-    _, _, rec = apply_pca(data, test_data, i+1)
-    MSE = mean_squared_error(test_data,rec)
-    MSerror[i] = MSE
+MRE_PCA = np.zeros(16)
+for i in range(16):
+    _, _, rec = apply_pca(train_X, test_X, i+1)
+    #MSE = mean_squared_error(test_X,rec)
+    MRE = MeanRelativeError(test_X, rec)
+    #MSE = np.mean(abs(test_X-rec))
+    MRE_PCA[i] = MRE
     
-#%%
-x = np.arange(1,14,1)
-#plt.plot(x,arnoud2, color = 'red', marker='o', label = 'ICA')
-plt.plot(x,MSerror,color = 'blue', marker = 'o', label = 'PCA')
+MRE_ICA = np.array([23.973236957458848,
+ 23.810931386435218,
+ 23.185357914665115,
+ 22.6793500559618,
+ 22.366285176841576,
+ 21.859993349876632,
+ 21.253335767209755,
+ 20.8554348869842,
+ 20.676173241205607,
+ 20.450955034244796,
+ 20.225893801602965,
+ 19.97266630140722,
+ 19.808235951482175,
+ 19.65393001116622,
+ 19.54871925376625,
+ 19.450648096848056])
+    
+VAEMREx = np.array([1, 2, 4, 8, 16])
+VAEMREy = np.array([7.821515905412953, 4.880896993302432, 4.625648590216787, 4.254391947354483 ,  3.852958951693818])
+#%% 
+x = np.arange(1,17,1)
+plt.plot(x,MRE_ICA, color = 'red', marker='o', label = 'ICA')
+plt.plot(x,MRE_PCA,color = 'blue', marker = 'o', label = 'PCA')
+plt.scatter(VAEMREx,VAEMREy,color = 'green', label = 'VAE')
 #plt.plot(x,re,color = 'blue', marker = 'o', label = 'PCA')
 plt.legend()
-plt.title("Mean Squared Error PCA vs ICA")
+plt.title("Mean Relative Error PCA")
 plt.xlabel("Dimensionality of latent space")
-plt.ylabel("Mean Squared Error")
-plt.xlim((1,12))
+plt.ylabel("Mean Relative Error")
+plt.xlim((1,17))
+
+#%%
+MSE2 = np.zeros(13)
+for i in range(13):
+    _, _, rec = apply_pca(train_X, test_X, i+1)
+    #MSE = mean_squared_error(test_data,rec)
+    temp = np.mean(((test_X-rec)**2))
+    MSE2[i] = temp
+    
+    
+#%%
+MSE3 = np.zeros(20)
+_, _, rec_4 = apply_pca(train_X,test_X, 4)
+for i in range(20):
+    print(np.mean((test_data[i]-rec[i])**2))
+    
+#%%
+    
+for i in range(20):
+    print(str(i)+", min: "+str(min(rec[i]))+", max: "+str(max(rec[i])))
+
+
+#%%
+N2 = (1020)
+error_tot = 0.0
+for i in range(N2):
+    img = validation_data[i][0].to(device)
+    VAE.encoder.eval()
+    VAE.decoder.eval()
+
+    with torch.no_grad():
+        z_1 = VAE.encoder(img)
+        rec_img_1  = VAE.decoder(z_1)
+
+        error = (img - rec_img_1).sum()
+        total_img = (img).sum()
+        relative_error = error/total_img
+
+        error_tot += (relative_error).item()
+
+avg_error = abs(100*error_tot/(N2))
+print("The avarage MSE = {}".format(avg_error))

@@ -294,7 +294,7 @@ relative_err = np.zeros(13)
 for i in range(13):
     _, _, rec = apply_pca(train, test, i+1)
     MRE = MeanRelativeError(test,rec)
-    relative_err[i] = MRE
+    relative_err[i] = MRE/2
     
 arnoud2 = np.array([154.7469068143036,
  95.57250780041515,
@@ -314,7 +314,7 @@ arnoud2 = np.array([154.7469068143036,
 re = me/np.mean(test)*100
     
 plt.plot(x,arnoud2, color = 'red', marker='o', label = 'ICA')
-plt.plot(x,relative_err/2,color = 'blue', marker = 'o', label = 'PCA')
+plt.plot(x,relative_err,color = 'blue', marker = 'o', label = 'PCA')
 #plt.plot(x,re,color = 'blue', marker = 'o', label = 'PCA')
 plt.legend()
 plt.title("mean relative error PCA vs ICA")
