@@ -344,13 +344,41 @@ desired_dim = 4
 
 ica, SourceICA, ReconICA, A, aa  = ApplyICA(desired_dim, train, test)
 
+#%%
+
+pc,latent, pcaRecon =  apply_pca(train, test, desired_dim)
 #%% get point and cell data from an existing FEM solution
 Path = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/"
 ##%%
 points, cells= GetPointsAndCells()
 
+#%%
+bcs = 4
+pos = sum(test_folders["Lengths"][:(bcs+1)]) - 1
+R = pcaRecon[132]
+O = test[132]
+N = R.shape[0]
+E = np.zeros(N)
+
+for i in range(N):
+    if O[i] != 0:
+         E[i] = abs((abs(O[i] - R[i]))/O[i])
+
+#%%
+Path = "C:/Users/aglas/OneDrive/Bureaublad/Documenten/TW Jaar 3/CSE Minor/Final Minor Project/TxtFiles/"
+file = Path + "PCA t=50 Rel error"+str(test_folders["Folders"][bcs])+ ".txt"
+f = open(file,"w")
+np.savetxt(file,E)
+
+
+file2 = Path +"PCA t=50 Recon"+ str(test_folders["Folders"][bcs])+ ".txt"
+f = open(file2,"w")
+np.savetxt(file2,R)
+
+f.close()
 #%% make new VTU files
 ### Make Sure in ICA Folder
+
 
 CreateComponentFiles(A, desired_dim, Path)
     
@@ -358,6 +386,32 @@ for i in range(desired_dim):
     ChangingComponents(i, 50, desired_dim, ica, Path)
 
 ##%% make 50 VTU files for gif
+
+
+
+def FindFolder(bcs, test_folders, ReconICA, Path = os.getcwd()):
+    start_pos = sum(test_folders["Lengths"][:bcs])
+    num_para = test_folders["Lengths"][bcs]
+    Folder = test_folders["Folders"][bcs]
+    
+    
+    PathR = Path+"VTUFiles/Reconstruction/"+Folder
+    PathO = Path+"VTUFiles/Original/"+Folder
+
+    if not os.path.exists(PathR):
+        os.makedirs(PathR)
+    if not os.path.exists(PathO):
+        os.makedirs(PathO)
+        
+
+        
+    # for i in range(num_para):
+    #     DeleteFile(Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+    #     DeleteFile(Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+    #     rec_para, true_para = get_para(start_pos,i,ReconICA)
+    #     create_vtu(rec_para,Path+"VTUFiles/Reconstruction/"+Folder+"/para_"+str(i+1)+".vtu")
+    #     create_vtu(true_para,Path+"VTUFiles/Original/"+Folder+"/para_"+str(i+1)+".vtu")
+
 
 
 bcs = 5
